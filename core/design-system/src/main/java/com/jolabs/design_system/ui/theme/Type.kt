@@ -1,10 +1,11 @@
-package com.jolabs.habitapp.ui.theme
+package com.jolabs.design_system.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
-import com.jolabs.habitapp.R
+import com.jolabs.design_system.R
+
 
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",

@@ -1,4 +1,4 @@
-package com.jolabs.habitapp.ui.theme
+package com.jolabs.design_system.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

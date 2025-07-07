@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.habit"
+    namespace = "com.jolabs.design_system"
     compileSdk = 35
 
     defaultConfig {
@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
@@ -51,12 +52,4 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.text.google.fonts)
-
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.androidx.graphics.shapes)
-
-    implementation(project(":core:design-system"))
 }

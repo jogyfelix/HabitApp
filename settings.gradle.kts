@@ -20,5 +20,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "HabitApp"
-include(":app")
-include(":feature:habit")
+include(":app",":feature:habit",
+    ":core:design-system")
+
