@@ -86,11 +86,18 @@ private fun HabitItem(color: Color) {
             Column {
                 Text(
                     "Drink water",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     "Drink water to keep hydrated",
+                    style = MaterialTheme.typography.bodyMedium
+                    , color = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    "longest streak : 10 days",
                     style = MaterialTheme.typography.bodySmall
+                    , color = MaterialTheme.colorScheme.secondary
                 )
             }
         }
@@ -112,7 +119,8 @@ private fun HabitItem(color: Color) {
             contentAlignment = Alignment.Center
 
         ) {
-            Text("1")
+            Text("100",
+                style = MaterialTheme.typography.headlineLarge)
         }
     }
 }
