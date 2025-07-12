@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.jolabs.design_system.ui.theme.HabitAppTheme
+import com.jolabs.habit.ui.CreateHabitScreen
 import com.jolabs.habit.ui.HabitHomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HabitAppTheme {
-                HabitHomeScreen()
+                CreateHabitScreen()
             }
         }
     }

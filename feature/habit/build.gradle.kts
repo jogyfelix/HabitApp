@@ -58,5 +58,8 @@ dependencies {
 
     implementation(libs.androidx.graphics.shapes)
 
+    implementation(libs.navigation.compose)
+    implementation(libs.hilt.navigation)
+
     implementation(project(":core:design-system"))
 }
