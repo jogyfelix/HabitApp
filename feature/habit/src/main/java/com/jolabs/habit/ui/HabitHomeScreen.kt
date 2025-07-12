@@ -66,7 +66,8 @@ fun HabitHomeScreen() {
         ) {
             items(20) {
                 HabitItem(color)
-                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant)
             }
         }
     }

@@ -1,6 +1,7 @@
 [versions]
 agp = "8.9.2"
 kotlin = "2.0.21"
+ksp = "2.0.21-1.0.27"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -11,6 +12,9 @@ composeBom = "2025.04.01"
 uiTextGoogleFonts = "1.8.0"
 appcompat = "1.6.1"
 androidxGraphicsShapes = "1.0.1"
+material = "1.12.0"
+room = "2.7.2"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +34,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3"}
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "androidxGraphicsShapes" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 
 
 [plugins]
@@ -37,4 +45,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

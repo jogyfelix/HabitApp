@@ -23,3 +23,4 @@ rootProject.name = "HabitApp"
 include(":app",":feature:habit",
     ":core:design-system")
 
+include(":core:database")
