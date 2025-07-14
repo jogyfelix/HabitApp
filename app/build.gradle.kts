@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.navigation.compose)
+    implementation(libs.hilt.navigation)
 
     implementation(project(":feature:habit"))
     implementation(project(":core:design-system"))

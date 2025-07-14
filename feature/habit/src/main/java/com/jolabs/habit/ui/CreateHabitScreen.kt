@@ -33,7 +33,7 @@ val DAYS_IN_WEEK = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateHabitScreen() {
+internal fun CreateHabitScreen() {
 
     val color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
 
@@ -110,6 +110,6 @@ fun CreateHabitScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun CreateHabitScreenPreview() {
+internal fun CreateHabitScreenPreview() {
     CreateHabitScreen()
 }

@@ -35,7 +35,7 @@ import androidx.graphics.shapes.toPath
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitHomeScreen() {
+internal fun HabitHomeScreen(onCreatePress : () -> Unit) {
     val color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -54,7 +54,7 @@ fun HabitHomeScreen() {
             })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { }) {
+            FloatingActionButton(onClick = onCreatePress) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }) { innerPadding ->
@@ -128,6 +128,6 @@ private fun HabitItem(color: Color) {
 
 @Preview(showBackground = true)
 @Composable
-fun HabitHomeScreenPreview() {
-    HabitHomeScreen()
+internal fun HabitHomeScreenPreview() {
+    HabitHomeScreen({})
 }

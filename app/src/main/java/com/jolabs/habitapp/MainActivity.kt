@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.jolabs.design_system.ui.theme.HabitAppTheme
-import com.jolabs.habit.ui.CreateHabitScreen
-import com.jolabs.habit.ui.HabitHomeScreen
+import com.jolabs.habit.navigation.HabitHomeDestination
+import com.jolabs.habit.navigation.habitNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,7 +18,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HabitAppTheme {
-                CreateHabitScreen()
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = HabitHomeDestination.route
+                ) {
+                    habitNavGraph(navController)
+                }
             }
         }
     }
