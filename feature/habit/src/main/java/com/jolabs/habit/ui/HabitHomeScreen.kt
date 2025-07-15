@@ -64,11 +64,11 @@ internal fun HabitHomeScreen(onCreatePress : () -> Unit) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
         ) {
-            items(20) {
-                HabitItem(color)
-                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant)
-            }
+//            items(20) {
+//                HabitItem(color)
+//                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
+//                    color = MaterialTheme.colorScheme.outlineVariant)
+//            }
         }
     }
 }

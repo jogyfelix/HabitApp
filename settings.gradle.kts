@@ -24,3 +24,6 @@ include(":app",":feature:habit",
     ":core:design-system")
 
 include(":core:database")
+include(":core:model")
+include(":core:data")
+include(":core:domain")

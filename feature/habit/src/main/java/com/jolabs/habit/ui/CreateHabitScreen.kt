@@ -28,12 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 val DAYS_IN_WEEK = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CreateHabitScreen() {
+internal fun CreateHabitScreen(
+    createHabitViewModel: CreateHabitViewModel = hiltViewModel()
+) {
 
     val color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
 
@@ -97,9 +100,11 @@ internal fun CreateHabitScreen() {
 
                 Spacer(Modifier.height(10.dp))
 
-                Button(modifier = Modifier
+                Button(
+onClick = {}
+                    ,modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp), onClick = { /*TODO*/ }) {
+                    .height(56.dp)) {
                     Text("Save")
                 }
 
@@ -111,5 +116,7 @@ internal fun CreateHabitScreen() {
 @Preview(showBackground = true)
 @Composable
 internal fun CreateHabitScreenPreview() {
-    CreateHabitScreen()
+    CreateHabitScreen(
+        createHabitViewModel = hiltViewModel()
+    )
 }
