@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -60,6 +61,8 @@ dependencies {
 
     implementation(libs.navigation.compose)
     implementation(libs.hilt.navigation)
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":core:design-system"))
 }

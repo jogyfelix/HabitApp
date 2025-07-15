@@ -2,29 +2,20 @@ package com.jolabs.habit.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.jolabs.habit.ui.CreateHabitScreen
 import com.jolabs.habit.ui.HabitHomeScreen
+import kotlinx.serialization.Serializable
 
-object HabitHomeDestination {
-     val route = "HABIT_HOME"
-     val destination = "HABIT_HOME_SCREEN"
-}
+@Serializable data object HabitHomeRoute
+@Serializable data object HabitCreateRoute
 
-object HabitCreateDestination {
-     val route = "HABIT_CREATE"
-     val destination = "HABIT_CREATE_SCREEN"
-}
-
-fun NavGraphBuilder.habitNavGraph(navController: NavController){
-     composable(route = HabitHomeDestination.route) {
-          HabitHomeScreen(onCreatePress = {
-               navController.navigate(HabitCreateDestination.route)
-          })
+fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit){
+     composable<HabitHomeRoute> {
+          HabitHomeScreen(onCreatePress = onCreatePress)
      }
-     composable(route = HabitCreateDestination.route,
+     composable<HabitCreateRoute>(
           enterTransition = {
                slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Up,

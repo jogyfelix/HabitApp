@@ -7,7 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.jolabs.design_system.ui.theme.HabitAppTheme
-import com.jolabs.habit.navigation.HabitHomeDestination
+import com.jolabs.habit.navigation.HabitCreateRoute
+import com.jolabs.habit.navigation.HabitHomeRoute
 import com.jolabs.habit.navigation.habitNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,9 +22,11 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = HabitHomeDestination.route
+                    startDestination = HabitHomeRoute
                 ) {
-                    habitNavGraph(navController)
+                    habitNavGraph(onCreatePress = {
+                        navController.navigate(HabitCreateRoute)
+                    })
                 }
             }
         }
