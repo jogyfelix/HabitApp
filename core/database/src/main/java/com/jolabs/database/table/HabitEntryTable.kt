@@ -6,5 +6,9 @@ import androidx.room.Entity
 data class HabitEntryTable(
     val habitId: Long,
     val date: Long,
-    val isCompleted: Boolean,
+    val isCompleted: HabitEntryStatus = HabitEntryStatus.NONE,
 )
+
+enum class HabitEntryStatus {
+    NONE,COMPLETED,NOT_COMPLETED
+}
