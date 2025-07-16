@@ -71,4 +71,5 @@ dependencies {
 
     implementation(project(":core:design-system"))
     implementation(project(":core:domain"))
+    implementation(project(":core:model"))
 }

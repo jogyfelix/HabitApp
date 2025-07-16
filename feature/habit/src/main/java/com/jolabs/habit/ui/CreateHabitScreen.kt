@@ -101,7 +101,7 @@ internal fun CreateHabitScreen(
                 Spacer(Modifier.height(10.dp))
 
                 Button(
-onClick = {}
+onClick = {createHabitViewModel.createHabit()}
                     ,modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)) {

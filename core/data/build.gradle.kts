@@ -47,4 +47,5 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(project(":core:model"))
+    implementation(project(":core:database"))
 }
