@@ -3,10 +3,10 @@ package com.jolabs.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.jolabs.database.dao.HabitDao
-import com.jolabs.database.table.HabitEntryTable
-import com.jolabs.database.table.HabitTable
-import com.jolabs.database.table.RepeatTable
-import com.jolabs.database.table.StreakTable
+import com.jolabs.database.entity.HabitEntryTable
+import com.jolabs.database.entity.HabitTable
+import com.jolabs.database.entity.RepeatTable
+import com.jolabs.database.entity.StreakTable
 
 @Database(
     entities = [HabitTable::class, HabitEntryTable::class, RepeatTable::class, StreakTable::class],

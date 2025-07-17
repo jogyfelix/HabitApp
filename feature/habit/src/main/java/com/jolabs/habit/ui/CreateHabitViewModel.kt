@@ -6,6 +6,7 @@ import com.jolabs.domain.CreateHabitUseCase
 import com.jolabs.model.CreateHabit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +20,8 @@ class CreateHabitViewModel @Inject constructor(
                 habit = CreateHabit(
                     name = "Praise God",
                     description = "Always and everyday",
-                    daysOfWeek = emptyList(),
+                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                    timeOfDay = System.currentTimeMillis(),
                     createdAt = System.currentTimeMillis()
                 )
             )

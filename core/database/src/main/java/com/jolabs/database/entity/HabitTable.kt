@@ -1,4 +1,4 @@
-package com.jolabs.database.table
+package com.jolabs.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

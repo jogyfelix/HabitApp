@@ -6,5 +6,6 @@ data class CreateHabit(
     val name: String,
     val description: String,
     val daysOfWeek: List<DayOfWeek>,
+    val timeOfDay:Long,
     val createdAt: Long
 )
