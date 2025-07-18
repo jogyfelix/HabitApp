@@ -1,10 +1,15 @@
 package com.jolabs.data.repository
 
+import com.jolabs.data.mapper.toDomain
 import com.jolabs.data.mapper.toEntity
 import com.jolabs.database.dao.HabitDao
 import com.jolabs.database.entity.RepeatTable
 import com.jolabs.database.entity.StreakTable
+import com.jolabs.database.relation.HabitWithDetails
 import com.jolabs.model.CreateHabit
+import com.jolabs.model.HabitBasic
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
@@ -27,4 +32,11 @@ class HabitRepositoryImpl @Inject constructor(
             ))
         }
     }
+
+    override fun getAllHabits() : Flow<List<HabitBasic>> {
+       return habitDao.getAllHabits().map { entities ->
+           entities.map(HabitWithDetails::toDomain)
+       }
+    }
+
 }

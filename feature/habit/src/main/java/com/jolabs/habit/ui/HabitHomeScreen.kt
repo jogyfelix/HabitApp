@@ -1,5 +1,6 @@
 package com.jolabs.habit.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
@@ -36,21 +38,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.PickerDialog
-import java.util.Calendar
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HabitHomeScreen(onCreatePress : () -> Unit) {
-
+internal fun HabitHomeScreen(
+    habitHomeViewModel: HabitHomeViewModel = hiltViewModel()
+    ,onCreatePress : () -> Unit) {
     var showDatePicker by remember { mutableStateOf(false) }
-
     val datePickerState = rememberDatePickerState()
+    val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -104,17 +110,26 @@ internal fun HabitHomeScreen(onCreatePress : () -> Unit) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
         ) {
-//            items(20) {
-//                HabitItem(color)
-//                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
-//                    color = MaterialTheme.colorScheme.outlineVariant)
-//            }
+            items(habitList.value) {
+                HabitItem(name = it.name, description = it.description, currentStreak = it.currentStreak, longestStreak = it.longestStreak)
+                HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant)
+            }
         }
     }
 }
 
 @Composable
-private fun HabitItem(color: Color) {
+private fun HabitItem(
+    name : String,
+    description : String,
+    longestStreak : String,
+    currentStreak : String
+) {
+
+    val color = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onPrimary
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -122,21 +137,24 @@ private fun HabitItem(color: Color) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
         ) {
             Checkbox(checked = false, onCheckedChange = {})
             Column {
                 Text(
-                    "Drink water",
+                    name,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    "Drink water to keep hydrated",
+                    description,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium
                     , color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
-                    "longest streak : 10 days",
+                    "longest streak : $longestStreak days",
                     style = MaterialTheme.typography.bodySmall
                     , color = MaterialTheme.colorScheme.secondary
                 )
@@ -144,7 +162,9 @@ private fun HabitItem(color: Color) {
         }
         Box(
             modifier = Modifier
+                .weight(0.4f)
                 .size(100.dp)
+                .padding(start = 8.dp)
                 .drawWithCache {
                     val roundedPolygon = RoundedPolygon(
                         numVertices = 6,
@@ -156,12 +176,14 @@ private fun HabitItem(color: Color) {
                     onDrawBehind {
                         drawPath(roundedPolygonPath, color = color)
                     }
-                },
+                }
+            ,
             contentAlignment = Alignment.Center
 
         ) {
-            Text("100",
-                style = MaterialTheme.typography.headlineLarge)
+            Text(currentStreak,
+                style = MaterialTheme.typography.headlineLarge,
+                color = textColor)
         }
     }
 }
@@ -169,5 +191,5 @@ private fun HabitItem(color: Color) {
 @Preview(showBackground = true)
 @Composable
 internal fun HabitHomeScreenPreview() {
-    HabitHomeScreen({})
+//    HabitHomeScreen({})
 }

@@ -9,6 +9,7 @@ import com.jolabs.database.entity.HabitTable
 import com.jolabs.database.entity.RepeatTable
 import com.jolabs.database.entity.StreakTable
 import com.jolabs.database.relation.HabitWithDetails
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HabitDao {
@@ -26,6 +27,10 @@ interface HabitDao {
 
  @Transaction
  @Query("SELECT * FROM HabitTable WHERE id=:habitId")
- suspend fun getHabits(habitId : Long): HabitWithDetails
+ suspend fun getHabit(habitId : Long): HabitWithDetails
+
+ @Transaction
+ @Query("SELECT * FROM HabitTable")
+ fun getAllHabits(): Flow<List<HabitWithDetails>>
 
 }
