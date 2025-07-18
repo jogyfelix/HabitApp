@@ -36,7 +36,6 @@ import androidx.graphics.shapes.toPath
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HabitHomeScreen(onCreatePress : () -> Unit) {
-    val color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
