@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.jolabs.habit.ui.CreateHabitRoute
 import com.jolabs.habit.ui.CreateHabitScreen
 import com.jolabs.habit.ui.HabitHomeScreen
 import kotlinx.serialization.Serializable
@@ -28,6 +29,6 @@ fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit){
                     tween(500)
                )
           }) {
-          CreateHabitScreen()
+          CreateHabitRoute()
      }
 }

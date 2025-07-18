@@ -1,5 +1,6 @@
 package com.jolabs.habit.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,32 +13,114 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jolabs.habit.ui.components.PickerDialog
 import com.jolabs.habit.ui.components.WeekSelector
+import java.time.DayOfWeek
+import java.util.Calendar
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CreateHabitScreen(
+internal fun CreateHabitRoute(
     createHabitViewModel: CreateHabitViewModel = hiltViewModel()
 ) {
+
     val selectedDays by createHabitViewModel.selectedDays.collectAsStateWithLifecycle()
     val habitName by createHabitViewModel.habitName.collectAsStateWithLifecycle()
     val habitDescription by createHabitViewModel.habitDescription.collectAsStateWithLifecycle()
     val timeOfDay by createHabitViewModel.timeOfDay.collectAsStateWithLifecycle()
 
+    val calendar = Calendar.getInstance()
+    val timePickerState = rememberTimePickerState(
+        initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+        initialMinute = calendar.get(Calendar.MINUTE),
+        is24Hour = false,
+    )
+
+    CreateHabitScreen(
+        selectedDays = selectedDays,
+        habitName = habitName,
+        habitDescription = habitDescription,
+        timeOfDay = timeOfDay,
+        timePickerState = timePickerState,
+        onSelectedDayToggle = createHabitViewModel::onSelectedDayToggle,
+        onHabitNameChange = createHabitViewModel::onHabitNameChange,
+        onHabitDescriptionChange = createHabitViewModel::onHabitDescriptionChange,
+        onTimeOfDayChange = createHabitViewModel::onTimeOfDayChange,
+        createHabitPress = createHabitViewModel::createHabit
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun CreateHabitScreen(
+    selectedDays : List<DayOfWeek> = emptyList(),
+    habitName : String = "",
+    habitDescription : String = "",
+    timeOfDay : Long? = null,
+    timePickerState : TimePickerState = rememberTimePickerState(),
+    onSelectedDayToggle : (DayOfWeek) -> Unit = {},
+    onHabitNameChange : (String) -> Unit = {},
+    onHabitDescriptionChange : (String) -> Unit = {},
+    onTimeOfDayChange : (Long) -> Unit = {},
+    createHabitPress : () -> Unit = {},
+) {
+
+    var showTimePicker by remember { mutableStateOf(false) }
+    val timeText = remember(timeOfDay) {
+        timeOfDay?.let {
+            val cal = Calendar.getInstance().apply { timeInMillis = it }
+            val hour = cal.get(Calendar.HOUR)
+            val minute = cal.get(Calendar.MINUTE)
+            val amPm = if (cal.get(Calendar.AM_PM) == Calendar.AM) "AM" else "PM"
+            val displayHour = if (hour == 0) 12 else hour
+            "%02d:%02d %s".format(displayHour, minute, amPm)
+        } ?: ""
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { TopAppBar(title = { Text("Add habit") }) }
     ) { innerPadding ->
+
+       if(showTimePicker){
+           PickerDialog(
+               onDismiss = { showTimePicker = false },
+               onConfirm = {
+                   val pickedTime = Calendar.getInstance().apply {
+                       set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                       set(Calendar.MINUTE, timePickerState.minute)
+                       set(Calendar.SECOND, 0)
+                       set(Calendar.MILLISECOND, 0)
+                   }.timeInMillis
+
+                   onTimeOfDayChange(pickedTime)
+                   showTimePicker = false }
+           ) {
+               TimePicker(
+                   state = timePickerState,
+               )
+           }
+       }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -50,8 +133,9 @@ internal fun CreateHabitScreen(
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = habitName,
+                singleLine = true,
                 onValueChange = {
-                    createHabitViewModel.onHabitNameChange(it)
+                    onHabitNameChange(it)
                 },
                 label = { Text("Name") }
             )
@@ -60,20 +144,38 @@ internal fun CreateHabitScreen(
                 modifier = Modifier.fillMaxWidth(),
                 value = habitDescription,
                 onValueChange = {
-                    createHabitViewModel.onHabitDescriptionChange(it)
+                   onHabitDescriptionChange(it)
                 },
                 label = { Text("Description") }
             )
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().clickable{
+                    showTimePicker = true
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledContainerColor = OutlinedTextFieldDefaults.colors().focusedContainerColor,
+                    disabledTextColor = OutlinedTextFieldDefaults.colors().focusedTextColor,
+                    disabledLabelColor = OutlinedTextFieldDefaults.colors().unfocusedLabelColor,
+                    disabledLeadingIconColor = OutlinedTextFieldDefaults.colors().focusedLeadingIconColor,
+                    disabledTrailingIconColor = OutlinedTextFieldDefaults.colors().focusedTrailingIconColor,
+                    disabledPlaceholderColor = OutlinedTextFieldDefaults.colors().focusedPlaceholderColor,
+                    disabledBorderColor = OutlinedTextFieldDefaults.colors().unfocusedIndicatorColor,
+                ),
+                value = timeText,
+                onValueChange = {},
+                readOnly = true,
+                enabled = false,
+                label = { Text("Set a Time (Optional)") }
+            )
             WeekSelector(
                 selectedDays = selectedDays,
-                onDayToggled = createHabitViewModel::onSelectedDayToggle
+                onDayToggled = onSelectedDayToggle
             )
             Spacer(Modifier.height(10.dp))
 
             Button(
-                onClick = {
-                    createHabitViewModel.createHabit()
-                }, modifier = Modifier
+                onClick = createHabitPress
+                , modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)) {
                 Text("Save")
@@ -83,10 +185,9 @@ internal fun CreateHabitScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 internal fun CreateHabitScreenPreview() {
-    CreateHabitScreen(
-//        createHabitViewModel = hiltViewModel()
-    )
+    CreateHabitScreen()
 }

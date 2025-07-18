@@ -25,8 +25,8 @@ class CreateHabitViewModel @Inject constructor(
     private val _habitDescription = MutableStateFlow("")
     val habitDescription : StateFlow<String> = _habitDescription
 
-    private val _timeOfDay = MutableStateFlow(System.currentTimeMillis())
-    val timeOfDay : StateFlow<Long> = _timeOfDay
+    private val _timeOfDay : MutableStateFlow<Long?> = MutableStateFlow(null)
+    val timeOfDay : StateFlow<Long?> = _timeOfDay
 
 
     fun onSelectedDayToggle(dayOfWeek: DayOfWeek) {
@@ -54,7 +54,7 @@ class CreateHabitViewModel @Inject constructor(
                     name = _habitName.value,
                     description = _habitDescription.value,
                     daysOfWeek = _selectedDays.value,
-                    timeOfDay = _timeOfDay.value,
+                    timeOfDay = _timeOfDay.value!!,
                     createdAt = System.currentTimeMillis()
                 )
             )
