@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.jolabs.design_system.ui.theme.HabitAppTheme
@@ -20,17 +21,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             HabitAppTheme {
                 val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = HabitHomeRoute
-                ) {
-                    habitNavGraph(onCreatePress = {
-                        navController.navigate(HabitCreateRoute)
-                    },
-                    onNavigateUp = {
-                        navController.popBackStack()
-                    }    )
-                }
+              Surface {
+                  NavHost(
+                      navController = navController,
+                      startDestination = HabitHomeRoute
+                  ) {
+                      habitNavGraph(onCreatePress = {
+                          navController.navigate(HabitCreateRoute)
+                      },
+                          onNavigateUp = {
+                              navController.popBackStack()
+                          }    )
+                  }
+              }
             }
         }
     }
