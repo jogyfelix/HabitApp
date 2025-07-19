@@ -19,26 +19,26 @@ fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit,
      composable<HabitCreateRoute>(
           enterTransition = {
                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = tween(300)
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500)
                )
           },
           exitTransition = {
                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Down,
-                    animationSpec = tween(300)
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500)
                )
           },
           popEnterTransition = {
                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = tween(300)
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500)
                     )
           },
           popExitTransition = {
                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Down,
-                    animationSpec = tween(300)
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500)
                )
           }
           ) {
