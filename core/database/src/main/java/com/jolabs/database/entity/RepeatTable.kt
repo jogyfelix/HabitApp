@@ -6,7 +6,7 @@ import androidx.room.Index
 import java.time.DayOfWeek
 
 @Entity(
-    primaryKeys = ["habitId", "dayOfWeek","timeOfDay"],
+    primaryKeys = ["habitId", "dayOfWeek"],
     foreignKeys = [
         ForeignKey(
             entity = HabitTable::class,
@@ -20,5 +20,5 @@ import java.time.DayOfWeek
 data class RepeatTable(
     val habitId: Long,
     val dayOfWeek: DayOfWeek,
-    val timeOfDay : Long
+    val timeOfDay : Long?
 )

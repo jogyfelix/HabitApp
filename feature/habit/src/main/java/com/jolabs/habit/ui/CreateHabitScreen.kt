@@ -1,5 +1,6 @@
 package com.jolabs.habit.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,17 +22,20 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.PickerDialog
 import com.jolabs.habit.ui.components.WeekSelector
+import com.jolabs.ui.UIEvent
 import java.time.DayOfWeek
 import java.util.Calendar
 
@@ -39,9 +43,10 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CreateHabitRoute(
-    createHabitViewModel: CreateHabitViewModel = hiltViewModel()
+    createHabitViewModel: CreateHabitViewModel = hiltViewModel(),
+    onNavigateUp: () -> Unit = {}
 ) {
-
+    val context = LocalContext.current
     val selectedDays by createHabitViewModel.selectedDays.collectAsStateWithLifecycle()
     val habitName by createHabitViewModel.habitName.collectAsStateWithLifecycle()
     val habitDescription by createHabitViewModel.habitDescription.collectAsStateWithLifecycle()
@@ -53,6 +58,19 @@ internal fun CreateHabitRoute(
         initialMinute = calendar.get(Calendar.MINUTE),
         is24Hour = false,
     )
+
+    LaunchedEffect(Unit) {
+        createHabitViewModel.uiEvent.collect { event ->
+            when(event){
+                UIEvent.NavigateUp -> {
+                    onNavigateUp()
+                }
+                is UIEvent.ShowMessage -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     CreateHabitScreen(
         selectedDays = selectedDays,
@@ -149,9 +167,11 @@ internal fun CreateHabitScreen(
                 label = { Text("Description") }
             )
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth().clickable{
-                    showTimePicker = true
-                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        showTimePicker = true
+                    },
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledContainerColor = OutlinedTextFieldDefaults.colors().focusedContainerColor,
                     disabledTextColor = OutlinedTextFieldDefaults.colors().focusedTextColor,

@@ -26,7 +26,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     habitNavGraph(onCreatePress = {
                         navController.navigate(HabitCreateRoute)
-                    })
+                    },
+                    onNavigateUp = {
+                        navController.popBackStack()
+                    }    )
                 }
             }
         }

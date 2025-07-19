@@ -12,7 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable data object HabitHomeRoute
 @Serializable data object HabitCreateRoute
 
-fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit){
+fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit,
+                                   onNavigateUp : () -> Unit){
      composable<HabitHomeRoute> {
           HabitHomeScreen(onCreatePress = onCreatePress)
      }
@@ -20,15 +21,14 @@ fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit){
           enterTransition = {
                slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Up,
-                    tween(200)
+
                )
           },
           exitTransition = {
                slideOutOfContainer(
                     AnimatedContentTransitionScope.SlideDirection.Down,
-                    tween(500)
                )
           }) {
-          CreateHabitRoute()
+          CreateHabitRoute(onNavigateUp = onNavigateUp)
      }
 }
