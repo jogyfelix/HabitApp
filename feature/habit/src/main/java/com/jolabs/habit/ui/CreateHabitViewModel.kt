@@ -49,11 +49,11 @@ class CreateHabitViewModel @Inject constructor(
         _habitDescription.value = description
     }
 
-    internal fun onTimeOfDayChange(time : Long) {
+    internal fun onTimeOfDayChange(time : Long?) {
         _timeOfDay.value = time
     }
 
-    internal fun clearInMemory() {
+    private fun clearInMemory() {
         _selectedDays.value = emptyList()
         _habitName.value = ""
         _habitDescription.value = ""

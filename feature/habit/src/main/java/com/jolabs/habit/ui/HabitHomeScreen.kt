@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -45,7 +48,7 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jolabs.habit.ui.components.PickerDialog
+import com.jolabs.habit.ui.components.DatePickerDialog
 
 
 
@@ -59,7 +62,7 @@ internal fun HabitHomeScreen(
     val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
         topBar = {
             TopAppBar(title = {
                 Row(
@@ -84,7 +87,7 @@ internal fun HabitHomeScreen(
         }) { innerPadding ->
 
         if(showDatePicker){
-            PickerDialog(
+            DatePickerDialog(
                 onDismiss = { showDatePicker = false },
                 onConfirm = {
 //                    val pickedTime = Calendar.getInstance().apply {

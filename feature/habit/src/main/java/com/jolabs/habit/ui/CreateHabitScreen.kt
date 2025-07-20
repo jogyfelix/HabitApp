@@ -5,15 +5,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,12 +39,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jolabs.habit.ui.components.PickerDialog
+import com.jolabs.habit.ui.components.TimePickerDialog
 import com.jolabs.habit.ui.components.WeekSelector
 import com.jolabs.ui.UIEvent
 import java.time.DayOfWeek
@@ -66,10 +76,11 @@ internal fun CreateHabitRoute(
 
     LaunchedEffect(Unit) {
         createHabitViewModel.uiEvent.collect { event ->
-            when(event){
+            when (event) {
                 UIEvent.NavigateUp -> {
                     onNavigateUp()
                 }
+
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
@@ -96,17 +107,17 @@ internal fun CreateHabitRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CreateHabitScreen(
-    selectedDays : List<DayOfWeek> = emptyList(),
-    habitName : String = "",
-    habitDescription : String = "",
-    timeOfDay : Long? = null,
-    timePickerState : TimePickerState = rememberTimePickerState(),
-    onNavigateUp : () -> Unit = {},
-    onSelectedDayToggle : (DayOfWeek) -> Unit = {},
-    onHabitNameChange : (String) -> Unit = {},
-    onHabitDescriptionChange : (String) -> Unit = {},
-    onTimeOfDayChange : (Long) -> Unit = {},
-    createHabitPress : () -> Unit = {},
+    selectedDays: List<DayOfWeek> = emptyList(),
+    habitName: String = "",
+    habitDescription: String = "",
+    timeOfDay: Long? = null,
+    timePickerState: TimePickerState = rememberTimePickerState(),
+    onNavigateUp: () -> Unit = {},
+    onSelectedDayToggle: (DayOfWeek) -> Unit = {},
+    onHabitNameChange: (String) -> Unit = {},
+    onHabitDescriptionChange: (String) -> Unit = {},
+    onTimeOfDayChange: (Long?) -> Unit = {},
+    createHabitPress: () -> Unit = {},
 ) {
 
     var showTimePicker by remember { mutableStateOf(false) }
@@ -120,37 +131,46 @@ internal fun CreateHabitScreen(
             "%02d:%02d %s".format(displayHour, minute, amPm)
         } ?: ""
     }
+    val descFocus = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = { TopAppBar(title = { Text("Add habit") },
-            navigationIcon = {
-                IconButton(onClick = { onNavigateUp() }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing),
+        topBar = {
+            TopAppBar(
+                title = { Text("Add habit") },
+                navigationIcon = {
+                    IconButton(onClick = { onNavigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+                    }
                 }
-            }
-            ) }
+            )
+        }
     ) { innerPadding ->
 
-       if(showTimePicker){
-           PickerDialog(
-               onDismiss = { showTimePicker = false },
-               onConfirm = {
-                   val pickedTime = Calendar.getInstance().apply {
-                       set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                       set(Calendar.MINUTE, timePickerState.minute)
-                       set(Calendar.SECOND, 0)
-                       set(Calendar.MILLISECOND, 0)
-                   }.timeInMillis
+        if (showTimePicker) {
+            TimePickerDialog(
+                onDismiss = { showTimePicker = false },
+                onConfirm = {
+                    val pickedTime = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        set(Calendar.MINUTE, timePickerState.minute)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }.timeInMillis
 
-                   onTimeOfDayChange(pickedTime)
-                   showTimePicker = false }
-           ) {
-               TimePicker(
-                   state = timePickerState,
-               )
-           }
-       }
+                    onTimeOfDayChange(pickedTime)
+                    showTimePicker = false
+                }
+            ) {
+                TimePicker(
+                    state = timePickerState,
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -163,6 +183,12 @@ internal fun CreateHabitScreen(
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        descFocus.requestFocus()
+                    }
+                ),
                 value = habitName,
                 singleLine = true,
                 onValueChange = {
@@ -172,11 +198,20 @@ internal fun CreateHabitScreen(
             )
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(descFocus),
                 value = habitDescription,
                 onValueChange = {
-                   onHabitDescriptionChange(it)
+                    onHabitDescriptionChange(it)
                 },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        focusManager.clearFocus()
+                        showTimePicker = true
+                    }
+                ),
                 label = { Text("Description") }
             )
             OutlinedTextField(
@@ -198,6 +233,12 @@ internal fun CreateHabitScreen(
                 onValueChange = {},
                 readOnly = true,
                 enabled = false,
+                trailingIcon = {
+                    Icon(
+                        modifier = Modifier.clickable {
+                            onTimeOfDayChange(null)
+                        }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time")
+                },
                 label = { Text("Set a Time (Optional)") }
             )
             WeekSelector(
@@ -210,7 +251,8 @@ internal fun CreateHabitScreen(
                 onClick = createHabitPress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)) {
+                    .height(56.dp)
+            ) {
                 Text("Save")
             }
         }
