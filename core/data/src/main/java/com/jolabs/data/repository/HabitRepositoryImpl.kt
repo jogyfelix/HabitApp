@@ -10,6 +10,8 @@ import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.DayOfWeek
+import java.time.LocalDate
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
@@ -37,6 +39,12 @@ class HabitRepositoryImpl @Inject constructor(
        return habitDao.getAllHabits().map { entities ->
            entities.map(HabitWithDetails::toDomain)
        }
+    }
+
+    override fun getHabitByDate(dayOfWeek: DayOfWeek,currentDateMillis: Long): Flow<List<HabitBasic>> {
+        return habitDao.getHabitByDate(dayOfWeek, currentDateMillis).map { entities ->
+            entities.map(HabitWithDetails::toDomain)
+        }
     }
 
 }

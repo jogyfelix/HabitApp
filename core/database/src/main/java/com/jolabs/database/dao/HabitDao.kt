@@ -10,27 +10,35 @@ import com.jolabs.database.entity.RepeatTable
 import com.jolabs.database.entity.StreakTable
 import com.jolabs.database.relation.HabitWithDetails
 import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
 
 @Dao
 interface HabitDao {
- @Insert
- suspend fun addHabit(habit: HabitTable) : Long
+    @Insert
+    suspend fun addHabit(habit: HabitTable): Long
 
- @Insert
- suspend fun addHabitEntry(habitEntry: HabitEntryTable) : Long
+    @Insert
+    suspend fun addHabitEntry(habitEntry: HabitEntryTable): Long
 
- @Insert
- suspend fun addHabitRepetition(habitRepeat: RepeatTable) : Long
+    @Insert
+    suspend fun addHabitRepetition(habitRepeat: RepeatTable): Long
 
- @Insert
- suspend fun addHabitStreak(habitStreak: StreakTable) : Long
+    @Insert
+    suspend fun addHabitStreak(habitStreak: StreakTable): Long
 
- @Transaction
- @Query("SELECT * FROM HabitTable WHERE id=:habitId")
- suspend fun getHabit(habitId : Long): HabitWithDetails
+    @Transaction
+    @Query("SELECT * FROM HabitTable WHERE id=:habitId")
+    suspend fun getHabit(habitId: Long): HabitWithDetails
 
- @Transaction
- @Query("SELECT * FROM HabitTable")
- fun getAllHabits(): Flow<List<HabitWithDetails>>
+    @Transaction
+    @Query("SELECT * FROM HabitTable")
+    fun getAllHabits(): Flow<List<HabitWithDetails>>
+
+    @Transaction
+    @Query("SELECT * FROM HabitTable h INNER JOIN RepeatTable r ON h.id = r.habitId LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate LEFT JOIN StreakTable s ON h.id = s.habitId WHERE r.dayOfWeek = :dayOfWeek")
+    fun getHabitByDate(
+        dayOfWeek: DayOfWeek,
+        selectedDate: Long
+    ): Flow<List<HabitWithDetails>>
 
 }

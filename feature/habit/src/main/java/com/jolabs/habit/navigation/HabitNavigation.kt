@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.jolabs.habit.ui.CreateHabitRoute
+import com.jolabs.habit.ui.HabitHomeRoute
 import com.jolabs.habit.ui.HabitHomeScreen
 import kotlinx.serialization.Serializable
 
@@ -14,7 +15,7 @@ import kotlinx.serialization.Serializable
 fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit,
                                    onNavigateUp : () -> Unit){
      composable<HabitHomeRoute> {
-          HabitHomeScreen(onCreatePress = onCreatePress)
+          HabitHomeRoute(onCreatePress = onCreatePress)
      }
      composable<HabitCreateRoute>(
           enterTransition = {
