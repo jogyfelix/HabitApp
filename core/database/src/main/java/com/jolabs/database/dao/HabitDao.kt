@@ -24,16 +24,26 @@ interface HabitDao {
     @Insert
     suspend fun addHabitRepetition(habitRepeat: RepeatTable): Long
 
-    @Insert
-    suspend fun addHabitStreak(habitStreak: StreakTable): Long
+    @Upsert
+    suspend fun upsertHabitStreak(habitStreak: StreakTable): Long
 
     @Transaction
     @Query("SELECT * FROM HabitTable WHERE id=:habitId")
-    suspend fun getHabit(habitId: Long): HabitWithDetails
+    suspend fun getHabitById(habitId: Long): HabitWithDetails
+
+    @Query("SELECT * FROM StreakTable WHERE habitId=:habitId")
+    suspend fun getHabitStreakById(habitId: Long): StreakTable
+
+    @Query("SELECT * FROM RepeatTable WHERE habitId=:habitId")
+    suspend fun getHabitRepetitionById(habitId: Long): List<RepeatTable>
+
+    @Query("SELECT * FROM HabitEntryTable WHERE habitId=:habitId ORDER BY date DESC LIMIT 1")
+    suspend fun getLastHabitEntryById(habitId: Long): HabitEntryTable?
 
     @Transaction
     @Query("SELECT * FROM HabitTable")
     fun getAllHabits(): Flow<List<HabitWithDetails>>
+
 
     @Transaction
     @Query("SELECT * FROM HabitTable h INNER JOIN RepeatTable r ON h.id = r.habitId LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate LEFT JOIN StreakTable s ON h.id = s.habitId WHERE r.dayOfWeek = :dayOfWeek")

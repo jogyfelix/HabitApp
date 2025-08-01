@@ -6,12 +6,14 @@ import com.jolabs.domain.CreateHabitUseCase
 import com.jolabs.model.CreateHabit
 import com.jolabs.ui.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
 import javax.inject.Inject
 
@@ -78,15 +80,17 @@ class CreateHabitViewModel @Inject constructor(
                 return@launch
             }
 
-            createHabitUseCase(
-                habit = CreateHabit(
-                    name = _habitName.value,
-                    description = _habitDescription.value,
-                    daysOfWeek = _selectedDays.value,
-                    timeOfDay = _timeOfDay.value,
-                    createdAt = System.currentTimeMillis()
+            withContext(Dispatchers.IO) {
+                createHabitUseCase(
+                    habit = CreateHabit(
+                        name = _habitName.value,
+                        description = _habitDescription.value,
+                        daysOfWeek = _selectedDays.value,
+                        timeOfDay = _timeOfDay.value,
+                        createdAt = System.currentTimeMillis()
+                    )
                 )
-            )
+            }
             _uiEvent.emit(UIEvent.ShowMessage("Habit created successfully"))
             _uiEvent.emit(UIEvent.NavigateUp)
         }

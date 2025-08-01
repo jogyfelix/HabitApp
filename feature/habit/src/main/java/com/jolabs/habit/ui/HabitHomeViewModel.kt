@@ -9,6 +9,7 @@ import com.jolabs.model.HabitStatus
 import com.jolabs.util.DateUtils.todayEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,16 +39,15 @@ class HabitHomeViewModel @Inject constructor(
     }
 
     internal fun getHabitsForTheDay() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             habitRepository.getHabitByDate(dayOfWeek = _selectedDay.value,   _selectedDate.value).collect { habits ->
                 _habitList.value = habits
-                println(habits)
             }
         }
     }
 
     internal fun updateHabitEntry(habitId : Long, date : Long, status : HabitStatus) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             habitRepository.upsertHabitEntry(
                 HabitEntryModel(
                     habitId = habitId,
