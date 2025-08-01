@@ -8,10 +8,10 @@ import com.jolabs.database.entity.StreakTable
 import com.jolabs.database.relation.HabitWithDetails
 import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
+import com.jolabs.model.HabitEntryModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
-import java.time.LocalDate
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
@@ -41,10 +41,14 @@ class HabitRepositoryImpl @Inject constructor(
        }
     }
 
-    override fun getHabitByDate(dayOfWeek: DayOfWeek,currentDateMillis: Long): Flow<List<HabitBasic>> {
-        return habitDao.getHabitByDate(dayOfWeek, currentDateMillis).map { entities ->
+    override fun getHabitByDate(dayOfWeek: DayOfWeek,epochDate: Long): Flow<List<HabitBasic>> {
+        return habitDao.getHabitByDate(dayOfWeek, epochDate).map { entities ->
             entities.map(HabitWithDetails::toDomain)
         }
+    }
+
+    override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
+        habitDao.upsertHabitEntry(habitEntry.toEntity())
     }
 
 }

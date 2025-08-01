@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.jolabs.database.entity.HabitEntryTable
 import com.jolabs.database.entity.HabitTable
 import com.jolabs.database.entity.RepeatTable
@@ -17,8 +18,8 @@ interface HabitDao {
     @Insert
     suspend fun addHabit(habit: HabitTable): Long
 
-    @Insert
-    suspend fun addHabitEntry(habitEntry: HabitEntryTable): Long
+    @Upsert
+    suspend fun upsertHabitEntry(habitEntry: HabitEntryTable): Long
 
     @Insert
     suspend fun addHabitRepetition(habitRepeat: RepeatTable): Long
@@ -40,5 +41,6 @@ interface HabitDao {
         dayOfWeek: DayOfWeek,
         selectedDate: Long
     ): Flow<List<HabitWithDetails>>
+
 
 }

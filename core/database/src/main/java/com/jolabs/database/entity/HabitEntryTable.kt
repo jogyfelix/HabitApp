@@ -17,7 +17,8 @@ import androidx.room.Index
 data class HabitEntryTable(
     val habitId: Long,
     val date: Long,
-    val isCompleted: HabitEntryStatus
+    val isCompleted: HabitEntryStatus?,
+    val updatedAtMillis: Long
 )
 
 enum class HabitEntryStatus {

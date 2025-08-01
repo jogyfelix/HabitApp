@@ -9,11 +9,7 @@ import com.jolabs.database.entity.StreakTable
 
 data class HabitWithDetails(
     @Embedded val habit: HabitTable,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "habitId"
-    )
-    val habitEntry: HabitEntryTable?,
+    @Embedded val habitEntry: HabitEntryTable?,
     @Relation(
         parentColumn = "id",
         entityColumn = "habitId"
