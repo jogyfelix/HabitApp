@@ -29,7 +29,7 @@ internal fun HabitListItem(
     description : String,
     longestStreak : String,
     currentStreak : String,
-    habitState : HabitStatus,
+    habitState : ToggleableState,
     onCheckedChange : () -> Unit = {}
 ) {
     val color = MaterialTheme.colorScheme.primary
@@ -44,11 +44,7 @@ internal fun HabitListItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            TriStateCheckbox(state = when(habitState) {
-                HabitStatus.NONE -> ToggleableState.Off
-                HabitStatus.COMPLETED -> ToggleableState.On
-                HabitStatus.SKIPPED -> ToggleableState.Indeterminate
-            }, onClick = onCheckedChange)
+            TriStateCheckbox(state = habitState, onClick = onCheckedChange)
             Column {
                 Text(
                     name,
@@ -106,6 +102,6 @@ private fun Preview() {
         description = "Hello how are you",
         longestStreak = "25",
         currentStreak = "20",
-        habitState = HabitStatus.COMPLETED
+        habitState = ToggleableState.On
     )
 }

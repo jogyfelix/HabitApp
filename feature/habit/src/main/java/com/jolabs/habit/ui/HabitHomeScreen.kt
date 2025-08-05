@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -93,7 +94,7 @@ internal fun HabitHomeScreen(
         }
     )
 
-    var formattedDate = remember(selectedDate) {
+    val formattedDate = remember(selectedDate) {
         formatEpochDay(selectedDate)
     }
 
@@ -181,13 +182,18 @@ internal fun HabitHomeScreen(
                     description = it.description,
                     currentStreak = it.currentStreak,
                     longestStreak = it.longestStreak,
-                    habitState = it.habitState,
+                    habitState =  when(it.habitState) {
+                        HabitStatus.NONE -> ToggleableState.Off
+                        HabitStatus.COMPLETED -> ToggleableState.On
+                        HabitStatus.SKIPPED -> ToggleableState.Indeterminate
+                    },
                     onCheckedChange = {
                         val newStatus = when (it.habitState) {
                             HabitStatus.NONE -> HabitStatus.COMPLETED
                             HabitStatus.COMPLETED -> HabitStatus.SKIPPED
                             HabitStatus.SKIPPED -> HabitStatus.NONE
                         }
+                        println(newStatus)
                             updateHabit(
                                 it.id,
                                 selectedDate,

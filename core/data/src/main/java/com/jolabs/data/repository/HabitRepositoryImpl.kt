@@ -58,62 +58,71 @@ class HabitRepositoryImpl @Inject constructor(
 
     override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
         val habitEntry = habitEntry.toEntity()
-//        val (current, longest) = calculateStreak(habitEntry.habitId, habitEntry.date, habitEntry)
         habitDao.upsertHabitEntry(habitEntry)
-//        habitDao.upsertHabitStreak(
-//            habitStreak = StreakTable(
-//                habitId = habitEntry.habitId,
-//                currentStreak = current,
-//                longestStreak = longest,
-//            )
+//        recalculateStreak(
+//            habitId = habitEntry.habitId,
+//            updatedDate = habitEntry.date,
+////            getEntries = { habitDao.getHabitEntryListById(it)},
+//            saveStreak = {habitStreak -> habitDao.upsertHabitStreak(habitStreak)}
 //        )
     }
+
+    suspend fun recalculateStreak(
+        habitId: Long,
+        updatedDate: Long,
+//        getEntries: suspend (Long) -> List<HabitEntryTable>,
+        saveStreak: suspend (StreakTable) -> Unit
+    ) {
+//        val entries = getEntries(habitId).sortedBy { it.date }
 //
-//    private suspend fun calculateStreak(
-//        habitId: Long,
-//        entryDate: Long,
-//        currentHabitEntry: HabitEntryTable
-//    ): Pair<Int, Int> {
-//        val streak = habitDao.getHabitStreakById(habitId)
-//        val repeatDays = habitDao.getHabitRepetitionById(habitId)
-//        val lastEntry = habitDao.getLastHabitEntryById(habitId)
+//        var currentStreak = 0
+//        var longestStreak = 0
 //
+//        var tempStreak = 0
+//        val currentDate = LocalDate.now().toEpochDay()
 //
-//        var currentStreak = streak.currentStreak
-//        var longestStreak = streak.longestStreak
+//        // Used to track the streak that ends on today or latest date
+//        var potentialCurrentStreak = 0
+//        var lastCompletedDate: Long? = null
 //
+//        for ((i, entry) in entries.withIndex()) {
+//            if (entry.isCompleted == HabitEntryStatus.COMPLETED) {
+//                if (lastCompletedDate == null || entry.date == lastCompletedDate + 1) {
+//                    tempStreak++
+//                } else {
+//                    // Not consecutive
+//                    tempStreak = 1
+//                }
 //
-//        val prevExpectedDate = getPreviousMatchingDate(
-//            LocalDate.ofEpochDay(entryDate),
-//            repeatDays.map { it.dayOfWeek }
-//        ).toEpochDay()
+//                // Update tracking
+//                lastCompletedDate = entry.date
 //
+//                // If streak is ending on or closest before today, consider it current
+//                if (entry.date <= currentDate) {
+//                    potentialCurrentStreak = tempStreak
+//                }
 //
-//        currentStreak = when {
-//            lastEntry == null -> 1 // No previous entry — start fresh
-//            lastEntry.isCompleted == HabitEntryStatus.COMPLETED && lastEntry.date == prevExpectedDate ->
-//                currentStreak + 1 // Continuation of streak
-//            currentHabitEntry.isCompleted == HabitEntryStatus.COMPLETED ->
-//                1 // Completed, but not a continuation (gap in streak)
-//            else ->
-//                maxOf(0, currentStreak - 1) // Skipped/None — decrease streak
+//                longestStreak = maxOf(longestStreak, tempStreak)
+//            } else {
+//                tempStreak = 0
+//            }
 //        }
 //
-//
-//        longestStreak = maxOf(currentStreak, longestStreak)
-//        return currentStreak to longestStreak
-//    }
-//
-//    private fun getPreviousMatchingDate(
-//        fromDate: LocalDate,
-//        repeatDays: List<DayOfWeek>
-//    ): LocalDate {
-//        var date = fromDate.minusDays(1)
-//        while (true) {
-//            if (repeatDays.contains(date.dayOfWeek)) return date
-//            date = date.minusDays(1)
-//        }
-//    }
+//        currentStreak = potentialCurrentStreak
+        val habit = habitDao.getHabitEntryById(habitId, updatedDate)
+        val habitStreak = habitDao.getHabitStreakById(habitId)
+       if((habit.isCompleted ?: HabitEntryStatus.NONE) == HabitEntryStatus.COMPLETED)
+       {
+           val streak = StreakTable(
+               habitId = habitId,
+               currentStreak = habitStreak.currentStreak + 1,
+               longestStreak =  habitStreak.longestStreak + 1
+           )
+           saveStreak(streak)
+       }
+
+    }
+
 
 
 }
