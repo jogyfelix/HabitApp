@@ -35,12 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.HabitListItem
+import com.jolabs.habit.ui.components.HabitShapes
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitStatus
 import com.jolabs.util.DateUtils.formatEpochDay
@@ -169,7 +171,7 @@ internal fun HabitHomeScreen(
             }
         }
 
-
+        val shapeCache = remember { mutableMapOf<String, Shape>() }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -177,7 +179,12 @@ internal fun HabitHomeScreen(
                 .padding(horizontal = 16.dp),
         ) {
             items(habitList) {
+                val shape = shapeCache.getOrPut(it.id.toString()) {
+                    HabitShapes.funShapes.random()
+                }
+
                 HabitListItem(
+                    id = it.id,
                     name = it.name,
                     description = it.description,
                     currentStreak = it.currentStreak,
@@ -187,6 +194,7 @@ internal fun HabitHomeScreen(
                         HabitStatus.COMPLETED -> ToggleableState.On
                         HabitStatus.SKIPPED -> ToggleableState.Indeterminate
                     },
+                    shape = shape,
                     onCheckedChange = {
                         val newStatus = when (it.habitState) {
                             HabitStatus.NONE -> HabitStatus.COMPLETED
