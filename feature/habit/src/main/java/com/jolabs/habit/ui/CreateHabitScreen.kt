@@ -59,13 +59,15 @@ import java.util.Calendar
 @Composable
 internal fun CreateHabitRoute(
     createHabitViewModel: CreateHabitViewModel = hiltViewModel(),
-    onNavigateUp: () -> Unit = {}
+    onNavigateUp: () -> Unit = {},
+    habitId: Long
 ) {
     val context = LocalContext.current
     val selectedDays by createHabitViewModel.selectedDays.collectAsStateWithLifecycle()
     val habitName by createHabitViewModel.habitName.collectAsStateWithLifecycle()
     val habitDescription by createHabitViewModel.habitDescription.collectAsStateWithLifecycle()
     val timeOfDay by createHabitViewModel.timeOfDay.collectAsStateWithLifecycle()
+
 
     val calendar = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
@@ -75,6 +77,7 @@ internal fun CreateHabitRoute(
     )
 
     LaunchedEffect(Unit) {
+        println("habit id ==>>>> $habitId")
         createHabitViewModel.uiEvent.collect { event ->
             when (event) {
                 UIEvent.NavigateUp -> {

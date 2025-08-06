@@ -4,20 +4,25 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import com.jolabs.habit.ui.CreateHabitRoute
 import com.jolabs.habit.ui.HabitHomeRoute
-import com.jolabs.habit.ui.HabitHomeScreen
 import kotlinx.serialization.Serializable
 
 @Serializable data object HabitHomeRoute
-@Serializable data object HabitCreateRoute
+@Serializable data class HabitCreateRoute(val habitId: Long?)
 
-fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit,
+fun NavGraphBuilder.habitNavGraph(onCreatePress : (habitId : Long?) -> Unit,
                                    onNavigateUp : () -> Unit){
      composable<HabitHomeRoute> {
           HabitHomeRoute(onCreatePress = onCreatePress)
      }
      composable<HabitCreateRoute>(
+          deepLinks = listOf(
+               navDeepLink {
+                    uriPattern = "looplog://habit/create?habitId={habitId}"
+               }
+          ),
           enterTransition = {
                slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Left,
@@ -42,7 +47,9 @@ fun NavGraphBuilder.habitNavGraph(onCreatePress : () -> Unit,
                     animationSpec = tween(500)
                )
           }
-          ) {
-          CreateHabitRoute(onNavigateUp = onNavigateUp)
+          ) { backStackEntry ->
+          val habitId = backStackEntry.arguments!!.getLong("habitId")
+          CreateHabitRoute(onNavigateUp = onNavigateUp,
+               habitId = habitId)
      }
 }

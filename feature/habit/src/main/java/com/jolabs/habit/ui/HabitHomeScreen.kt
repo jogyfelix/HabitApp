@@ -52,13 +52,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 
 @Composable
 internal fun HabitHomeRoute(
     habitHomeViewModel: HabitHomeViewModel = hiltViewModel(),
-    onCreatePress: () -> Unit
+    onCreatePress: (habitId : Long) -> Unit
 ) {
     val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
     val selectedDate = habitHomeViewModel.selectedDate.collectAsStateWithLifecycle()
@@ -82,7 +81,7 @@ internal fun HabitHomeRoute(
 @Composable
 internal fun HabitHomeScreen(
     habitList: List<HabitBasic> = emptyList(),
-    onCreatePress: () -> Unit,
+    onCreatePress: (habitId: Long) -> Unit,
     selectedDate: Long = todayEpochDay(),
     onSelectedDateChange: (Long) -> Unit = {},
     onSelectedDayChange: (DayOfWeek) -> Unit,
@@ -123,7 +122,7 @@ internal fun HabitHomeScreen(
             })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onCreatePress) {
+            FloatingActionButton(onClick = { onCreatePress(0) }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }) { innerPadding ->

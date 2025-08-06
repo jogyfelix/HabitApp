@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                       startDestination = HabitHomeRoute
                   ) {
                       habitNavGraph(onCreatePress = {
-                          navController.navigate(HabitCreateRoute)
+                          navController.navigate(HabitCreateRoute(habitId = it)) {launchSingleTop = true}
                       },
                           onNavigateUp = {
                               navController.popBackStack()
