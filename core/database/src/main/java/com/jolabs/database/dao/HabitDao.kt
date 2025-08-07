@@ -1,6 +1,7 @@
 package com.jolabs.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -16,6 +17,9 @@ import java.time.DayOfWeek
 interface HabitDao {
     @Upsert
     suspend fun addHabit(habit: HabitTable): Long
+
+    @Query("DELETE FROM HabitTable WHERE id = :habitId")
+    suspend fun deleteHabit(habitId : Long): Int
 
     @Upsert
     suspend fun upsertHabitEntry(habitEntry: HabitEntryTable): Long

@@ -3,6 +3,7 @@ package com.jolabs.habit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,13 +35,17 @@ internal fun HabitListItem(
     shape: Shape,
     modifier: Modifier,
     onCheckedChange : () -> Unit = {},
+    deleteHabitPress : (habitId : Long) -> Unit = {},
     onHabitPress : (habitId : Long) -> Unit = {}
 ) {
     val color = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onPrimary
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().combinedClickable(
+            onClick = { onHabitPress(id) },
+            onLongClick = { deleteHabitPress(id) }
+        ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -49,11 +54,7 @@ internal fun HabitListItem(
             modifier = Modifier.weight(1f)
         ) {
             TriStateCheckbox(state = habitState, onClick = onCheckedChange)
-            Column(
-                modifier = Modifier.clickable{
-                    onHabitPress(id)
-                }
-            ) {
+            Column{
                 Text(
                     name,
                     style = MaterialTheme.typography.titleMedium,

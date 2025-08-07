@@ -24,6 +24,10 @@ class HabitRepositoryImpl @Inject constructor(
         habitDao.upsertHabitWithDetails(habit.toHabitTableEntity(), daysOfWeek = habit.daysOfWeek, timeOfDay = habit.timeOfDay)
     }
 
+    override suspend fun deleteHabit(habitId: Long) : Int {
+        return habitDao.deleteHabit(habitId)
+    }
+
     override fun getAllHabits(): Flow<List<HabitBasic>> {
         return habitDao.getAllHabits().map { entities ->
             entities.map(HabitWithDetails::toDomain)
@@ -32,7 +36,6 @@ class HabitRepositoryImpl @Inject constructor(
 
     override suspend fun getHabitById(id: Long): CreateHabit? {
         val habit = habitDao.getHabitById(id)
-        println("Habit: $habit")
         return habit?.toCreateHabit()
     }
 

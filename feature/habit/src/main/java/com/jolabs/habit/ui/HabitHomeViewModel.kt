@@ -6,11 +6,14 @@ import com.jolabs.data.repository.HabitRepository
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitEntryModel
 import com.jolabs.model.HabitStatus
+import com.jolabs.ui.UIEvent
 import com.jolabs.util.DateUtils.todayEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -29,6 +32,9 @@ class HabitHomeViewModel @Inject constructor(
 
     private val _selectedDay : MutableStateFlow<DayOfWeek> = MutableStateFlow(LocalDate.now().dayOfWeek)
 //    val selectedDay : StateFlow<DayOfWeek> = _selectedDay
+
+    private val _uiEvent = MutableSharedFlow<UIEvent>()
+    val uiEvent : SharedFlow<UIEvent> = _uiEvent
 
     internal fun onSelectedDayChange(day : DayOfWeek) {
         _selectedDay.value = day
@@ -56,5 +62,16 @@ class HabitHomeViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    internal fun deleteHabit(habitId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val habit = habitRepository.deleteHabit(habitId)
+            if(habit == 1) {
+                _uiEvent.emit(UIEvent.ShowMessage("Habit deleted successfully"))
+            }
+
+        }
+
     }
 }

@@ -9,13 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +33,8 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,7 +77,8 @@ internal fun HabitHomeRoute(
         selectedDate = selectedDate.value,
         onSelectedDateChange = habitHomeViewModel::onSelectedDateChange,
         onSelectedDayChange = habitHomeViewModel::onSelectedDayChange,
-        updateHabit = habitHomeViewModel::updateHabitEntry
+        updateHabit = habitHomeViewModel::updateHabitEntry,
+        deleteHabitPress = habitHomeViewModel::deleteHabit
     )
 }
 
@@ -83,6 +88,7 @@ internal fun HabitHomeRoute(
 internal fun HabitHomeScreen(
     habitList: List<HabitBasic> = emptyList(),
     onCreatePress: (habitId: Long) -> Unit,
+    deleteHabitPress: (habitId: Long) -> Unit,
     selectedDate: Long = todayEpochDay(),
     onSelectedDateChange: (Long) -> Unit = {},
     onSelectedDayChange: (DayOfWeek) -> Unit,
@@ -90,6 +96,9 @@ internal fun HabitHomeScreen(
 ) {
 
     var showDatePicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var deleteHabitId by remember { mutableLongStateOf(0L) }
+
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = remember(selectedDate) {
             LocalDate.ofEpochDay(selectedDate).atStartOfDay(ZoneOffset.UTC).toInstant()
@@ -172,6 +181,40 @@ internal fun HabitHomeScreen(
             }
         }
 
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteDialog = false
+                },
+                title = {
+                    Text(text = "Delete habit?")
+                },
+                text = {
+                    Text(text = "This will permanently delete the habit and all of its progress. This action cannot be undone.")
+                },
+                confirmButton = {
+                    OutlinedButton(
+                        onClick = {
+                            deleteHabitPress(deleteHabitId)
+                            showDeleteDialog = false
+                            deleteHabitId = 0L
+                        }
+                    ) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("Dismiss")
+                    }
+                }
+            )
+        }
+
         val shapeCache = remember { mutableMapOf<String, Shape>() }
         LazyColumn(
             modifier = Modifier
@@ -196,7 +239,7 @@ internal fun HabitHomeScreen(
                         HabitStatus.SKIPPED -> ToggleableState.Indeterminate
                     },
                     shape = shape,
-                    modifier = Modifier.padding(bottom = if(index == habitList.lastIndex) 100.dp else 0.dp),
+                    modifier = Modifier.padding(bottom = if (index == habitList.lastIndex) 100.dp else 0.dp),
                     onCheckedChange = {
                         val newStatus = when (item.habitState) {
                             HabitStatus.NONE -> HabitStatus.COMPLETED
@@ -209,7 +252,11 @@ internal fun HabitHomeScreen(
                             newStatus
                         )
                     },
-                    onHabitPress = onCreatePress
+                    onHabitPress = onCreatePress,
+                    deleteHabitPress = { id ->
+                        showDeleteDialog = true
+                        deleteHabitId = id
+                    }
                 )
 
                 if (index < habitList.lastIndex) {
@@ -230,6 +277,7 @@ internal fun HabitHomeScreenPreview() {
         habitList = emptyList(),
         onCreatePress = { },
         onSelectedDateChange = {},
-        onSelectedDayChange = {}
+        onSelectedDayChange = {},
+        deleteHabitPress = {}
     )
 }

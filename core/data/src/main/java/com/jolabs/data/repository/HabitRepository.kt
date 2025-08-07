@@ -9,6 +9,8 @@ import java.time.DayOfWeek
 
 interface HabitRepository {
     suspend fun createHabit(habit: CreateHabit)
+
+    suspend fun deleteHabit(habitId: Long) : Int
     fun getAllHabits() : Flow<List<HabitBasic>>
 
     suspend fun getHabitById(id : Long) : CreateHabit?
