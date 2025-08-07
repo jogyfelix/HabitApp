@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -42,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.HabitListItem
-import com.jolabs.habit.ui.components.HabitShapes
+import com.jolabs.design_system.ui.theme.HabitShapes
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitStatus
 import com.jolabs.util.DateUtils.formatEpochDay
@@ -57,7 +58,7 @@ import java.time.ZoneOffset
 @Composable
 internal fun HabitHomeRoute(
     habitHomeViewModel: HabitHomeViewModel = hiltViewModel(),
-    onCreatePress: (habitId : Long) -> Unit
+    onCreatePress: (habitId: Long) -> Unit
 ) {
     val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
     val selectedDate = habitHomeViewModel.selectedDate.collectAsStateWithLifecycle()
@@ -85,13 +86,14 @@ internal fun HabitHomeScreen(
     selectedDate: Long = todayEpochDay(),
     onSelectedDateChange: (Long) -> Unit = {},
     onSelectedDayChange: (DayOfWeek) -> Unit,
-    updateHabit : (Long, Long, HabitStatus) -> Unit = { _, _, _ ->}
+    updateHabit: (Long, Long, HabitStatus) -> Unit = { _, _, _ -> }
 ) {
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = remember(selectedDate) {
-            LocalDate.ofEpochDay(selectedDate).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            LocalDate.ofEpochDay(selectedDate).atStartOfDay(ZoneOffset.UTC).toInstant()
+                .toEpochMilli()
         }
     )
 
@@ -177,40 +179,45 @@ internal fun HabitHomeScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
         ) {
-            items(habitList) {
-                val shape = shapeCache.getOrPut(it.id.toString()) {
+            itemsIndexed(habitList) { index, item ->
+                val shape = shapeCache.getOrPut(item.id.toString()) {
                     HabitShapes.funShapes.random()
                 }
 
                 HabitListItem(
-                    id = it.id,
-                    name = it.name,
-                    description = it.description,
-                    currentStreak = it.currentStreak,
-                    longestStreak = it.longestStreak,
-                    habitState =  when(it.habitState) {
+                    id = item.id,
+                    name = item.name,
+                    description = item.description,
+                    currentStreak = item.currentStreak,
+                    longestStreak = item.longestStreak,
+                    habitState = when (item.habitState) {
                         HabitStatus.NONE -> ToggleableState.Off
                         HabitStatus.COMPLETED -> ToggleableState.On
                         HabitStatus.SKIPPED -> ToggleableState.Indeterminate
                     },
                     shape = shape,
+                    modifier = Modifier.padding(bottom = if(index == habitList.lastIndex) 100.dp else 0.dp),
                     onCheckedChange = {
-                        val newStatus = when (it.habitState) {
+                        val newStatus = when (item.habitState) {
                             HabitStatus.NONE -> HabitStatus.COMPLETED
                             HabitStatus.COMPLETED -> HabitStatus.SKIPPED
                             HabitStatus.SKIPPED -> HabitStatus.NONE
                         }
-                            updateHabit(
-                                it.id,
-                                selectedDate,
-                                newStatus
-                            )
+                        updateHabit(
+                            item.id,
+                            selectedDate,
+                            newStatus
+                        )
                     },
-                    onHabitPress =onCreatePress)
-                HorizontalDivider(
-                    thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
+                    onHabitPress = onCreatePress
                 )
+
+                if (index < habitList.lastIndex) {
+                    HorizontalDivider(
+                        thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
             }
         }
     }

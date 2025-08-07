@@ -21,6 +21,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jolabs.design_system.ui.theme.HabitShapes
 
 @Composable
 internal fun HabitListItem(
@@ -31,6 +32,7 @@ internal fun HabitListItem(
     currentStreak : String,
     habitState : ToggleableState,
     shape: Shape,
+    modifier: Modifier,
     onCheckedChange : () -> Unit = {},
     onHabitPress : (habitId : Long) -> Unit = {}
 ) {
@@ -38,7 +40,7 @@ internal fun HabitListItem(
     val textColor = MaterialTheme.colorScheme.onPrimary
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -98,6 +100,7 @@ private fun Preview() {
         description = "Hello how are you",
         longestStreak = "25",
         currentStreak = "20",
+        modifier = Modifier,
         shape = HabitShapes.OctagonShape,
         habitState = ToggleableState.On
     )
