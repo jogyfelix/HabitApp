@@ -21,7 +21,9 @@ object DatabaseModule {
             context,
             HabitDatabase::class.java,
             HabitDatabase.DATABASE_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigration(true) //TODO change this before release
+            .build()
     }
 
     @Provides

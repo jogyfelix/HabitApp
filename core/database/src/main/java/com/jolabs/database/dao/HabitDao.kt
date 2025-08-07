@@ -1,7 +1,6 @@
 package com.jolabs.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -15,21 +14,43 @@ import java.time.DayOfWeek
 
 @Dao
 interface HabitDao {
-    @Insert
+    @Upsert
     suspend fun addHabit(habit: HabitTable): Long
 
     @Upsert
     suspend fun upsertHabitEntry(habitEntry: HabitEntryTable): Long
 
-    @Insert
+    @Upsert
     suspend fun addHabitRepetition(habitRepeat: RepeatTable): Long
 
     @Upsert
     suspend fun upsertHabitStreak(habitStreak: StreakTable): Long
 
     @Transaction
+    suspend fun upsertHabitWithDetails(habitTable: HabitTable, daysOfWeek: List<DayOfWeek>,timeOfDay: Long?) {
+        val habitId =addHabit(habitTable)
+        val id = if(habitTable.id == 0L) habitId else habitTable.id
+        upsertHabitStreak(
+            StreakTable(
+                habitId = id,
+                currentStreak = 0,
+                longestStreak = 0,
+            )
+        )
+        daysOfWeek.forEach { dayOfWeek ->
+            addHabitRepetition(
+                RepeatTable(
+                    habitId = id,
+                    dayOfWeek = dayOfWeek,
+                    timeOfDay = timeOfDay
+                )
+            )
+        }
+    }
+
+    @Transaction
     @Query("SELECT * FROM HabitTable WHERE id=:habitId")
-    suspend fun getHabitById(habitId: Long): HabitWithDetails
+    suspend fun getHabitById(habitId: Long): HabitWithDetails?
 
     @Query("SELECT * FROM HabitEntryTable WHERE habitId=:habitId AND date=:date")
     suspend fun getHabitEntryById(habitId: Long, date: Long): HabitEntryTable
@@ -54,6 +75,4 @@ interface HabitDao {
         dayOfWeek: DayOfWeek,
         selectedDate: Long
     ): Flow<List<HabitWithDetails>>
-
-
 }

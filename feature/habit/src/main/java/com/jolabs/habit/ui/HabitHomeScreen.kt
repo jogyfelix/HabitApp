@@ -200,13 +200,13 @@ internal fun HabitHomeScreen(
                             HabitStatus.COMPLETED -> HabitStatus.SKIPPED
                             HabitStatus.SKIPPED -> HabitStatus.NONE
                         }
-                        println(newStatus)
                             updateHabit(
                                 it.id,
                                 selectedDate,
                                 newStatus
                             )
-                    })
+                    },
+                    onHabitPress =onCreatePress)
                 HorizontalDivider(
                     thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
                     color = MaterialTheme.colorScheme.outlineVariant

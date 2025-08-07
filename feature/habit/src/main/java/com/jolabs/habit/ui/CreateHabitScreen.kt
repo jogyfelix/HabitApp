@@ -77,7 +77,7 @@ internal fun CreateHabitRoute(
     )
 
     LaunchedEffect(Unit) {
-        println("habit id ==>>>> $habitId")
+        createHabitViewModel.getHabit(habitId)
         createHabitViewModel.uiEvent.collect { event ->
             when (event) {
                 UIEvent.NavigateUp -> {
@@ -240,7 +240,8 @@ internal fun CreateHabitScreen(
                     Icon(
                         modifier = Modifier.clickable {
                             onTimeOfDayChange(null)
-                        }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time")
+                        }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time"
+                    )
                 },
                 label = { Text("Set a Time (Optional)") }
             )

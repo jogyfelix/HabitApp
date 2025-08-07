@@ -2,6 +2,7 @@ package com.jolabs.habit.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jolabs.data.repository.HabitRepository
 import com.jolabs.domain.CreateHabitUseCase
 import com.jolabs.model.CreateHabit
 import com.jolabs.ui.UIEvent
@@ -19,13 +20,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateHabitViewModel @Inject constructor(
-    private val createHabitUseCase: CreateHabitUseCase
+    private val createHabitUseCase: CreateHabitUseCase,
+    private val habitRepository: HabitRepository
 ) : ViewModel() {
     private val _selectedDays = MutableStateFlow<List<DayOfWeek>>(emptyList())
     val selectedDays : StateFlow<List<DayOfWeek>> = _selectedDays
 
     private val _habitName = MutableStateFlow("")
     val habitName : StateFlow<String> = _habitName
+
+    private val _habitId = MutableStateFlow(0L)
+    private val _createdAt = MutableStateFlow(0L)
 
     private val _habitDescription = MutableStateFlow("")
     val habitDescription : StateFlow<String> = _habitDescription
@@ -67,6 +72,23 @@ class CreateHabitViewModel @Inject constructor(
         clearInMemory()
     }
 
+    internal fun getHabit(id : Long) {
+        viewModelScope.launch() {
+            if(id != 0L)
+             {
+                _habitId.value = id
+                withContext(Dispatchers.IO) {
+                    val habit = habitRepository.getHabitById(id)
+                    _selectedDays.value = habit?.daysOfWeek ?: emptyList()
+                    _habitName.value = habit?.name ?: ""
+                    _habitDescription.value = habit?.description ?: ""
+                    _timeOfDay.value = habit?.timeOfDay
+                    _createdAt.value = habit?.createdAt ?: 0L
+                }
+            }
+        }
+    }
+
     internal fun createHabit() {
         viewModelScope.launch {
 
@@ -83,11 +105,13 @@ class CreateHabitViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 createHabitUseCase(
                     habit = CreateHabit(
+                        id = _habitId.value,
                         name = _habitName.value,
                         description = _habitDescription.value,
                         daysOfWeek = _selectedDays.value,
                         timeOfDay = _timeOfDay.value,
-                        createdAt = System.currentTimeMillis()
+                        createdAt = if(_habitId.value == 0L) System.currentTimeMillis() else _createdAt.value,
+                        updatedAt = System.currentTimeMillis(),
                     )
                 )
             }

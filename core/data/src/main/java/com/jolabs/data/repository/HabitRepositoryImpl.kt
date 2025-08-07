@@ -1,11 +1,11 @@
 package com.jolabs.data.repository
 
+import com.jolabs.data.mapper.toCreateHabit
 import com.jolabs.data.mapper.toDomain
 import com.jolabs.data.mapper.toEntity
+import com.jolabs.data.mapper.toHabitTableEntity
 import com.jolabs.database.dao.HabitDao
 import com.jolabs.database.entity.HabitEntryStatus
-import com.jolabs.database.entity.HabitEntryTable
-import com.jolabs.database.entity.RepeatTable
 import com.jolabs.database.entity.StreakTable
 import com.jolabs.database.relation.HabitWithDetails
 import com.jolabs.model.CreateHabit
@@ -14,40 +14,26 @@ import com.jolabs.model.HabitEntryModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
-import java.time.LocalDate
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
     private val habitDao: HabitDao
 ) : HabitRepository {
 
-    //TODO make this atomic
     override suspend fun createHabit(habit: CreateHabit) {
-        val habitId = habitDao.addHabit(habit.toEntity())
-
-        habitDao.upsertHabitStreak(
-            StreakTable(
-                habitId = habitId,
-                currentStreak = 0,
-                longestStreak = 0,
-            )
-        )
-
-        habit.daysOfWeek.forEach { dayOfWeek ->
-            habitDao.addHabitRepetition(
-                RepeatTable(
-                    habitId = habitId,
-                    dayOfWeek = dayOfWeek,
-                    timeOfDay = habit.timeOfDay
-                )
-            )
-        }
+        habitDao.upsertHabitWithDetails(habit.toHabitTableEntity(), daysOfWeek = habit.daysOfWeek, timeOfDay = habit.timeOfDay)
     }
 
     override fun getAllHabits(): Flow<List<HabitBasic>> {
         return habitDao.getAllHabits().map { entities ->
             entities.map(HabitWithDetails::toDomain)
         }
+    }
+
+    override suspend fun getHabitById(id: Long): CreateHabit? {
+        val habit = habitDao.getHabitById(id)
+        println("Habit: $habit")
+        return habit?.toCreateHabit()
     }
 
     override fun getHabitByDate(dayOfWeek: DayOfWeek, epochDate: Long): Flow<List<HabitBasic>> {

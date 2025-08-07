@@ -10,7 +10,7 @@ import com.jolabs.database.entity.StreakTable
 
 @Database(
     entities = [HabitTable::class, HabitEntryTable::class, RepeatTable::class, StreakTable::class],
-    version = 1
+    version = 2
 )
 abstract class HabitDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao

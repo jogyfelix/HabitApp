@@ -9,22 +9,13 @@ import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitEntryModel
 import com.jolabs.model.HabitStatus
 
-//// TODO need to work on this one
-//fun HabitTable.toDomain() : CreateHabit {
-//    return CreateHabit(
-//        name = name,
-//        description = description,
-//        daysOfWeek = emptyList(),
-//        timeOfDay = t,
-//        createdAt = createdAt
-//    )
-//}
-
-fun CreateHabit.toEntity() : HabitTable {
+fun CreateHabit.toHabitTableEntity() : HabitTable {
     return HabitTable(
+        id= id,
         name = name,
         description = description,
-        createdAt = createdAt
+        createdAt = createdAt,
+        updatedAt = updatedAt
     )
 }
 
@@ -36,6 +27,18 @@ fun HabitWithDetails.toDomain() : HabitBasic {
         longestStreak = habitStreak.longestStreak.toString(),
         currentStreak = habitStreak.currentStreak.toString(),
         habitState = habitEntry?.isCompleted?.toHabitStatus() ?: HabitStatus.NONE
+    )
+}
+
+fun HabitWithDetails.toCreateHabit() : CreateHabit {
+    return CreateHabit(
+        id = habit.id,
+        name = habit.name,
+        description = habit.description,
+        daysOfWeek = habitRepeat.map { it.dayOfWeek },
+        timeOfDay = habitRepeat.first().timeOfDay,
+        createdAt = habit.createdAt,
+        updatedAt = habit.updatedAt
     )
 }
 

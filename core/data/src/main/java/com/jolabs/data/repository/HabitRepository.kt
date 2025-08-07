@@ -10,6 +10,8 @@ import java.time.DayOfWeek
 interface HabitRepository {
     suspend fun createHabit(habit: CreateHabit)
     fun getAllHabits() : Flow<List<HabitBasic>>
+
+    suspend fun getHabitById(id : Long) : CreateHabit?
     fun getHabitByDate(dayOfWeek: DayOfWeek,epochDate : Long) : Flow<List<HabitBasic>>
 
     suspend fun upsertHabitEntry(habitEntry: HabitEntryModel)

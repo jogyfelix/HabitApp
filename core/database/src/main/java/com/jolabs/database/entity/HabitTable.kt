@@ -10,4 +10,5 @@ data class HabitTable(
     val name: String,
     val description: String,
     val createdAt: Long,
+    val updatedAt: Long
     )
