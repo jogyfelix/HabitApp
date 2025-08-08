@@ -19,7 +19,10 @@ interface HabitDao {
     suspend fun addHabit(habit: HabitTable): Long
 
     @Query("DELETE FROM HabitTable WHERE id = :habitId")
-    suspend fun deleteHabit(habitId : Long): Int
+    suspend fun deleteHabit(habitId: Long): Int
+
+    @Query("DELETE FROM HabitEntryTable WHERE habitId = :habitId AND date = :date")
+    suspend fun deleteHabitEntry(habitId: Long, date: Long): Int
 
     @Upsert
     suspend fun upsertHabitEntry(habitEntry: HabitEntryTable): Long
@@ -30,27 +33,63 @@ interface HabitDao {
     @Upsert
     suspend fun upsertHabitStreak(habitStreak: StreakTable): Long
 
+    @Query(
+        """
+    DELETE FROM RepeatTable
+    WHERE habitId = :habitId
+      AND dayOfWeek NOT IN (:newDays)
+"""
+    )
+    suspend fun deleteRemovedDays(habitId: Long, newDays: List<DayOfWeek>)
+
+
     @Transaction
-    suspend fun upsertHabitWithDetails(habitTable: HabitTable, daysOfWeek: List<DayOfWeek>,timeOfDay: Long?) {
-        val habitId =addHabit(habitTable)
-        val id = if(habitTable.id == 0L) habitId else habitTable.id
-        upsertHabitStreak(
-            StreakTable(
-                habitId = id,
-                currentStreak = 0,
-                longestStreak = 0,
-            )
-        )
-        daysOfWeek.forEach { dayOfWeek ->
-            addHabitRepetition(
-                RepeatTable(
-                    habitId = id,
-                    dayOfWeek = dayOfWeek,
-                    timeOfDay = timeOfDay
+    suspend fun upsertHabitWithDetails(
+        habitTable: HabitTable,
+        daysOfWeek: List<DayOfWeek>,
+        timeOfDay: Long?
+    ) {
+        val habitId = addHabit(habitTable)
+        if (habitTable.id == 0L) {
+            upsertHabitStreak(
+                StreakTable(
+                    habitId = habitId,
+                    currentStreak = 0,
+                    longestStreak = 0,
                 )
             )
+
+            daysOfWeek.map {
+                addHabitRepetition(
+                    RepeatTable(
+                        habitId = habitId,
+                        dayOfWeek = it,
+                        timeOfDay = timeOfDay
+                    )
+                )
+            }
+        } else {
+            val existingDays = getHabitRepetitionById(habitTable.id)
+                .map { it.dayOfWeek }
+
+            if (existingDays != daysOfWeek) {
+                deleteRemovedDays(habitTable.id, daysOfWeek)
+
+                val daysToInsert = daysOfWeek.filter { it !in existingDays }
+                daysToInsert.forEach { day ->
+                    addHabitRepetition(
+                        RepeatTable(
+                            habitId = habitTable.id,
+                            dayOfWeek = day,
+                            timeOfDay = timeOfDay
+                        )
+                    )
+                }
+            }
         }
+
     }
+
 
     @Transaction
     @Query("SELECT * FROM HabitTable WHERE id=:habitId")

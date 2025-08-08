@@ -115,7 +115,7 @@ class CreateHabitViewModel @Inject constructor(
                     )
                 )
             }
-            _uiEvent.emit(UIEvent.ShowMessage("Habit created successfully"))
+            _uiEvent.emit(UIEvent.ShowMessage("Your habit has been saved"))
             _uiEvent.emit(UIEvent.NavigateUp)
         }
     }

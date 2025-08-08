@@ -7,7 +7,6 @@ import com.jolabs.data.mapper.toEntity
 import com.jolabs.data.mapper.toHabitTableEntity
 import com.jolabs.database.dao.HabitDao
 import com.jolabs.database.entity.HabitEntryStatus
-import com.jolabs.database.entity.HabitEntryTable
 import com.jolabs.database.entity.StreakTable
 import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
@@ -26,6 +25,10 @@ class HabitRepositoryImpl @Inject constructor(
 
     override suspend fun createHabit(habit: CreateHabit) {
         habitDao.upsertHabitWithDetails(habit.toHabitTableEntity(), daysOfWeek = habit.daysOfWeek, timeOfDay = habit.timeOfDay)
+        if(habit.id > 0L){
+        val(currentStreak,longestStreak)=calculateStreak(habit.id)
+        habitDao.upsertHabitStreak(StreakTable(habit.id,currentStreak,longestStreak))
+    }
     }
 
     override suspend fun deleteHabit(habitId: Long) : Int {
@@ -63,16 +66,16 @@ class HabitRepositoryImpl @Inject constructor(
     override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
         val habitEntry = habitEntry.toEntity()
         habitDao.upsertHabitEntry(habitEntry)
-        val(currentStreak,longestStreak)  =calculateStreak(habitEntry)
+        val(currentStreak,longestStreak)  =calculateStreak(habitEntry.habitId)
         habitDao.upsertHabitStreak(StreakTable(habitEntry.habitId,currentStreak,longestStreak))
     }
 
 
-    private suspend fun calculateStreak(habitEntry: HabitEntryTable): Pair<Int, Int> {
-        val entries = habitDao.getHabitEntryById(habitEntry.habitId)
+    private suspend fun calculateStreak(habitId: Long): Pair<Int, Int> {
+        val entries = habitDao.getHabitEntryById(habitId)
             .filter { it.isCompleted == HabitEntryStatus.COMPLETED }
 
-        val repeatDaysSet = habitDao.getHabitRepetitionById(habitEntry.habitId)
+        val repeatDaysSet = habitDao.getHabitRepetitionById(habitId)
             .map { it.dayOfWeek }
             .toSet()
 
