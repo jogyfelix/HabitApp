@@ -1,12 +1,17 @@
 package com.jolabs.habit.ui
 
+import Resource
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,13 +47,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.HabitListItem
 import com.jolabs.design_system.ui.theme.HabitShapes
+import com.jolabs.habit.R
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitStatus
 import com.jolabs.util.DateUtils.formatEpochDay
@@ -67,9 +76,7 @@ internal fun HabitHomeRoute(
     val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
     val selectedDate = habitHomeViewModel.selectedDate.collectAsStateWithLifecycle()
 
-    LaunchedEffect(selectedDate.value) {
-        habitHomeViewModel.getHabitsForTheDay()
-    }
+
 
     HabitHomeScreen(
         habitList = habitList.value,
@@ -86,7 +93,7 @@ internal fun HabitHomeRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HabitHomeScreen(
-    habitList: List<HabitBasic> = emptyList(),
+    habitList: Resource<List<HabitBasic>> = Resource.Loading(),
     onCreatePress: (habitId: Long) -> Unit,
     deleteHabitPress: (habitId: Long) -> Unit,
     selectedDate: Long = todayEpochDay(),
@@ -216,54 +223,112 @@ internal fun HabitHomeScreen(
         }
 
         val shapeCache = remember { mutableMapOf<String, Shape>() }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
-        ) {
-            itemsIndexed(habitList) { index, item ->
-                val shape = shapeCache.getOrPut(item.id.toString()) {
-                    HabitShapes.funShapes.random()
-                }
-
-                HabitListItem(
-                    id = item.id,
-                    name = item.name,
-                    description = item.description,
-                    currentStreak = item.currentStreak,
-                    longestStreak = item.longestStreak,
-                    habitState = when (item.habitState) {
-                        HabitStatus.NONE -> ToggleableState.Off
-                        HabitStatus.COMPLETED -> ToggleableState.On
-                        HabitStatus.SKIPPED -> ToggleableState.Indeterminate
-                    },
-                    shape = shape,
-                    modifier = Modifier.padding(bottom = if (index == habitList.lastIndex) 100.dp else 0.dp),
-                    onCheckedChange = {
-                        val newStatus = when (item.habitState) {
-                            HabitStatus.NONE -> HabitStatus.COMPLETED
-                            HabitStatus.COMPLETED -> HabitStatus.SKIPPED
-                            HabitStatus.SKIPPED -> HabitStatus.NONE
-                        }
-                        updateHabit(
-                            item.id,
-                            selectedDate,
-                            newStatus
+        when (val habitListState = habitList) {
+            is Resource.Error<*> -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(
+                        modifier = Modifier.padding(40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.data_empty),
+                            contentDescription = "My custom icon",
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(88.dp)
                         )
-                    },
-                    onHabitPress = onCreatePress,
-                    deleteHabitPress = { id ->
-                        showDeleteDialog = true
-                        deleteHabitId = id
+                        Text(
+                            text = "Oops! Something went wrong while loading your habits. Don't worry, we're on it. Please try again in a bit!",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.outline,
+                            textAlign = TextAlign.Center
+                        )
                     }
-                )
+                }
+            }
 
-                if (index < habitList.lastIndex) {
-                    HorizontalDivider(
-                        thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
+            is Resource.Loading<*> -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is Resource.Success<*> -> {
+                if (!habitListState.data.isNullOrEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        itemsIndexed(habitListState.data!!) { index, item ->
+                            val shape = shapeCache.getOrPut(item.id.toString()) {
+                                HabitShapes.funShapes.random()
+                            }
+
+                            HabitListItem(
+                                id = item.id,
+                                name = item.name,
+                                description = item.description,
+                                currentStreak = item.currentStreak,
+                                longestStreak = item.longestStreak,
+                                habitState = when (item.habitState) {
+                                    HabitStatus.NONE -> ToggleableState.Off
+                                    HabitStatus.COMPLETED -> ToggleableState.On
+                                    HabitStatus.SKIPPED -> ToggleableState.Indeterminate
+                                },
+                                shape = shape,
+                                modifier = Modifier.padding(bottom = if (index == habitListState.data!!.lastIndex) 100.dp else 0.dp),
+                                onCheckedChange = {
+                                    val newStatus = when (item.habitState) {
+                                        HabitStatus.NONE -> HabitStatus.COMPLETED
+                                        HabitStatus.COMPLETED -> HabitStatus.SKIPPED
+                                        HabitStatus.SKIPPED -> HabitStatus.NONE
+                                    }
+                                    updateHabit(
+                                        item.id,
+                                        selectedDate,
+                                        newStatus
+                                    )
+                                },
+                                onHabitPress = onCreatePress,
+                                deleteHabitPress = { id ->
+                                    showDeleteDialog = true
+                                    deleteHabitId = id
+                                }
+                            )
+
+                            if (index < habitListState.data!!.lastIndex) {
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(
+                            modifier = Modifier.padding(40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.event_list),
+                                contentDescription = "My custom icon",
+                                tint = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.size(88.dp)
+                            )
+                            Text(
+                                text = "No habits scheduled for today. Ready to start a new one?",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.outline,
+                                textAlign = TextAlign.Center
+                            )
+
+                        }
+                    }
                 }
             }
         }
@@ -274,7 +339,7 @@ internal fun HabitHomeScreen(
 @Composable
 internal fun HabitHomeScreenPreview() {
     HabitHomeScreen(
-        habitList = emptyList(),
+        habitList = Resource.Loading(),
         onCreatePress = { },
         onSelectedDateChange = {},
         onSelectedDayChange = {},

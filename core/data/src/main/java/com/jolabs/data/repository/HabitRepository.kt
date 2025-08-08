@@ -1,6 +1,6 @@
 package com.jolabs.data.repository
 
-import com.jolabs.database.entity.HabitEntryTable
+import Resource
 import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitEntryModel
@@ -11,7 +11,7 @@ interface HabitRepository {
     suspend fun createHabit(habit: CreateHabit)
 
     suspend fun deleteHabit(habitId: Long) : Int
-    fun getAllHabits() : Flow<List<HabitBasic>>
+    fun getAllHabits() : Flow<Resource<List<HabitBasic>>>
 
     suspend fun getHabitById(id : Long) : CreateHabit?
     fun getHabitByDate(dayOfWeek: DayOfWeek,epochDate : Long) : Flow<List<HabitBasic>>

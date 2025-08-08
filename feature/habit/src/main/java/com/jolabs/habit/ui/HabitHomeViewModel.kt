@@ -1,5 +1,6 @@
 package com.jolabs.habit.ui
 
+import Resource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jolabs.data.repository.HabitRepository
@@ -14,7 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -24,8 +27,12 @@ class HabitHomeViewModel @Inject constructor(
     private val habitRepository: HabitRepository
 ) : ViewModel() {
 
-    private val _habitList = MutableStateFlow<List<HabitBasic>>(emptyList())
-    val habitList : StateFlow<List<HabitBasic>> = _habitList
+    val habitList : StateFlow<Resource<List<HabitBasic>>> = habitRepository.getAllHabits()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Resource.Loading()
+        )
 
     private val _selectedDate : MutableStateFlow<Long> = MutableStateFlow(todayEpochDay())
     val selectedDate : StateFlow<Long> = _selectedDate
@@ -44,13 +51,6 @@ class HabitHomeViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
-    internal fun getHabitsForTheDay() {
-        viewModelScope.launch(Dispatchers.IO) {
-            habitRepository.getHabitByDate(dayOfWeek = _selectedDay.value,   _selectedDate.value).collect { habits ->
-                _habitList.value = habits
-            }
-        }
-    }
 
     internal fun updateHabitEntry(habitId : Long, date : Long, status : HabitStatus) {
         viewModelScope.launch(Dispatchers.IO) {

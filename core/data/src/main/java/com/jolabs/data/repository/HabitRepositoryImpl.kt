@@ -1,5 +1,6 @@
 package com.jolabs.data.repository
 
+import Resource
 import com.jolabs.data.mapper.toCreateHabit
 import com.jolabs.data.mapper.toDomain
 import com.jolabs.data.mapper.toEntity
@@ -11,8 +12,12 @@ import com.jolabs.database.relation.HabitWithDetails
 import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitEntryModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import java.time.DayOfWeek
 import javax.inject.Inject
 
@@ -28,11 +33,18 @@ class HabitRepositoryImpl @Inject constructor(
         return habitDao.deleteHabit(habitId)
     }
 
-    override fun getAllHabits(): Flow<List<HabitBasic>> {
-        return habitDao.getAllHabits().map { entities ->
-            entities.map(HabitWithDetails::toDomain)
+
+    override fun getAllHabits(): Flow<Resource<List<HabitBasic>>> = flow {
+        emit(Resource.Loading())
+        habitDao.getAllHabits().collect { habitsWithDetails ->
+            val habits = habitsWithDetails.map { it.toDomain() }
+            emit(Resource.Success(habits))
         }
+    }.catch { e ->
+        emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
     }
+
+
 
     override suspend fun getHabitById(id: Long): CreateHabit? {
         val habit = habitDao.getHabitById(id)
