@@ -7,18 +7,17 @@ import com.jolabs.data.mapper.toEntity
 import com.jolabs.data.mapper.toHabitTableEntity
 import com.jolabs.database.dao.HabitDao
 import com.jolabs.database.entity.HabitEntryStatus
+import com.jolabs.database.entity.HabitEntryTable
 import com.jolabs.database.entity.StreakTable
-import com.jolabs.database.relation.HabitWithDetails
 import com.jolabs.model.CreateHabit
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitEntryModel
-import kotlinx.coroutines.delay
+import com.jolabs.util.DateUtils.toLocalDateFromEpochDays
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import java.time.DayOfWeek
+import java.time.LocalDate
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
@@ -51,77 +50,102 @@ class HabitRepositoryImpl @Inject constructor(
         return habit?.toCreateHabit()
     }
 
-    override fun getHabitByDate(dayOfWeek: DayOfWeek, epochDate: Long): Flow<List<HabitBasic>> {
-        return habitDao.getHabitByDate(dayOfWeek, epochDate).map { entities ->
-            entities.map(HabitWithDetails::toDomain)
-        }
+    override fun getHabitByDate(dayOfWeek: DayOfWeek, epochDate: Long): Flow<Resource<List<HabitBasic>>> = flow {
+        emit(Resource.Loading())
+         habitDao.getHabitByDate(dayOfWeek, epochDate).collect { habitsWithDetails ->
+             val habits = habitsWithDetails.map {  it.toDomain() }
+             emit(Resource.Success(habits))
+         }
+    }.catch { e ->
+        emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
     }
 
     override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
         val habitEntry = habitEntry.toEntity()
         habitDao.upsertHabitEntry(habitEntry)
-//        recalculateStreak(
-//            habitId = habitEntry.habitId,
-//            updatedDate = habitEntry.date,
-////            getEntries = { habitDao.getHabitEntryListById(it)},
-//            saveStreak = {habitStreak -> habitDao.upsertHabitStreak(habitStreak)}
-//        )
+        val(currentStreak,longestStreak)  =calculateStreak(habitEntry)
+        habitDao.upsertHabitStreak(StreakTable(habitEntry.habitId,currentStreak,longestStreak))
     }
 
-    suspend fun recalculateStreak(
-        habitId: Long,
-        updatedDate: Long,
-//        getEntries: suspend (Long) -> List<HabitEntryTable>,
-        saveStreak: suspend (StreakTable) -> Unit
-    ) {
-//        val entries = getEntries(habitId).sortedBy { it.date }
-//
-//        var currentStreak = 0
-//        var longestStreak = 0
-//
-//        var tempStreak = 0
-//        val currentDate = LocalDate.now().toEpochDay()
-//
-//        // Used to track the streak that ends on today or latest date
-//        var potentialCurrentStreak = 0
-//        var lastCompletedDate: Long? = null
-//
-//        for ((i, entry) in entries.withIndex()) {
-//            if (entry.isCompleted == HabitEntryStatus.COMPLETED) {
-//                if (lastCompletedDate == null || entry.date == lastCompletedDate + 1) {
-//                    tempStreak++
-//                } else {
-//                    // Not consecutive
-//                    tempStreak = 1
-//                }
-//
-//                // Update tracking
-//                lastCompletedDate = entry.date
-//
-//                // If streak is ending on or closest before today, consider it current
-//                if (entry.date <= currentDate) {
-//                    potentialCurrentStreak = tempStreak
-//                }
-//
-//                longestStreak = maxOf(longestStreak, tempStreak)
-//            } else {
-//                tempStreak = 0
-//            }
-//        }
-//
-//        currentStreak = potentialCurrentStreak
-        val habit = habitDao.getHabitEntryById(habitId, updatedDate)
-        val habitStreak = habitDao.getHabitStreakById(habitId)
-       if((habit.isCompleted ?: HabitEntryStatus.NONE) == HabitEntryStatus.COMPLETED)
-       {
-           val streak = StreakTable(
-               habitId = habitId,
-               currentStreak = habitStreak.currentStreak + 1,
-               longestStreak =  habitStreak.longestStreak + 1
-           )
-           saveStreak(streak)
-       }
 
+    private suspend fun calculateStreak(habitEntry: HabitEntryTable): Pair<Int, Int> {
+        val entries = habitDao.getHabitEntryById(habitEntry.habitId)
+            .filter { it.isCompleted == HabitEntryStatus.COMPLETED }
+
+        val repeatDaysSet = habitDao.getHabitRepetitionById(habitEntry.habitId)
+            .map { it.dayOfWeek }
+            .toSet()
+
+        if (entries.isEmpty()) return 0 to 0
+
+        val validDates = entries
+            .map { it.date.toLocalDateFromEpochDays() }
+            .sorted()
+            .filter { it.dayOfWeek in repeatDaysSet }
+
+        if (validDates.isEmpty()) return 0 to 0
+
+        // -------- Longest streak --------
+        var longestStreak = 1
+        var tempStreak = 1
+
+        for (i in 1 until validDates.size) {
+            if (areConsecutiveValidDays(validDates[i - 1], validDates[i], repeatDaysSet)) {
+                tempStreak++
+            } else {
+                tempStreak = 1
+            }
+            longestStreak = maxOf(longestStreak, tempStreak)
+        }
+
+        // -------- Current streak --------
+        var currentStreak = 1
+        var lastDate = validDates.last()
+
+        while (true) {
+            val prevExpected = getPreviousValidDate(lastDate, repeatDaysSet)
+            if (prevExpected != null && validDates.contains(prevExpected)) {
+                currentStreak++
+                lastDate = prevExpected
+            } else {
+                break
+            }
+        }
+
+        val today = LocalDate.now()
+        val lastExpected = getPreviousValidDate(today.plusDays(1), repeatDaysSet)
+        if (validDates.last() != lastExpected) {
+            if (validDates.last() != lastExpected) {
+                val prevExpected = lastExpected?.let { getPreviousValidDate(it, repeatDaysSet) }
+                if (prevExpected == null || validDates.last() != prevExpected) {
+                    currentStreak = 0
+                }
+            }
+        }
+
+
+        return currentStreak to longestStreak
+    }
+
+
+    private fun areConsecutiveValidDays(prev: LocalDate, next: LocalDate, repeatDays: Set<DayOfWeek>): Boolean {
+        var expected = prev
+        while (true) {
+            expected = expected.plusDays(1)
+            if (expected.dayOfWeek in repeatDays) break
+        }
+        return expected == next
+    }
+
+    private fun getPreviousValidDate(fromDate: LocalDate, repeatDays: Set<DayOfWeek>): LocalDate? {
+        var prev = fromDate.minusDays(1)
+        var counter = 0
+        while (prev.dayOfWeek !in repeatDays) {
+            prev = prev.minusDays(1)
+            counter++
+            if (counter > 7) return null // safety guard
+        }
+        return prev
     }
 
 

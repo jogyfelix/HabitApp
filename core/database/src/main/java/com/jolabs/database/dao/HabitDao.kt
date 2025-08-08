@@ -56,8 +56,8 @@ interface HabitDao {
     @Query("SELECT * FROM HabitTable WHERE id=:habitId")
     suspend fun getHabitById(habitId: Long): HabitWithDetails?
 
-    @Query("SELECT * FROM HabitEntryTable WHERE habitId=:habitId AND date=:date")
-    suspend fun getHabitEntryById(habitId: Long, date: Long): HabitEntryTable
+    @Query("SELECT * FROM HabitEntryTable WHERE habitId=:habitId")
+    suspend fun getHabitEntryById(habitId: Long): List<HabitEntryTable>
 
     @Query("SELECT * FROM StreakTable WHERE habitId=:habitId")
     suspend fun getHabitStreakById(habitId: Long): StreakTable

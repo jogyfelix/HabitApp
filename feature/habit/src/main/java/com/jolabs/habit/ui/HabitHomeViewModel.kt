@@ -12,11 +12,14 @@ import com.jolabs.util.DateUtils.todayEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -27,21 +30,31 @@ class HabitHomeViewModel @Inject constructor(
     private val habitRepository: HabitRepository
 ) : ViewModel() {
 
-    val habitList : StateFlow<Resource<List<HabitBasic>>> = habitRepository.getAllHabits()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = Resource.Loading()
-        )
 
     private val _selectedDate : MutableStateFlow<Long> = MutableStateFlow(todayEpochDay())
     val selectedDate : StateFlow<Long> = _selectedDate
 
     private val _selectedDay : MutableStateFlow<DayOfWeek> = MutableStateFlow(LocalDate.now().dayOfWeek)
-//    val selectedDay : StateFlow<DayOfWeek> = _selectedDay
+    val selectedDay : StateFlow<DayOfWeek> = _selectedDay
 
     private val _uiEvent = MutableSharedFlow<UIEvent>()
     val uiEvent : SharedFlow<UIEvent> = _uiEvent
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val habitList: StateFlow<Resource<List<HabitBasic>>> = combine(
+    selectedDate,
+    selectedDay
+    ) { date, day ->
+        Pair(date, day)
+    }
+    .flatMapLatest { (date, day) ->
+        habitRepository.getHabitByDate(day, date)
+    }
+    .stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = Resource.Loading()
+    )
 
     internal fun onSelectedDayChange(day : DayOfWeek) {
         _selectedDay.value = day
