@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_habit">Add Habit</string>
+    <string name="widget_add_habit_description">Quickly add a new habit without opening the app</string>
+</resources>

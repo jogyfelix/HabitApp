@@ -31,6 +31,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -68,6 +71,9 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material)
 
     implementation(project(":core:design-system"))
     implementation(project(":core:domain"))

@@ -53,5 +53,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.text.google.fonts)
 
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material)
+
     implementation(libs.androidx.graphics.shapes)
 }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.glance.material3.ColorProviders
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -273,5 +274,12 @@ fun HabitAppTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
         content = content
+    )
+}
+
+object MyWidgetColorScheme {
+    val colors = ColorProviders(
+        light = lightScheme,
+        dark = darkScheme
     )
 }

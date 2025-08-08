@@ -33,13 +33,7 @@ interface HabitDao {
     @Upsert
     suspend fun upsertHabitStreak(habitStreak: StreakTable): Long
 
-    @Query(
-        """
-    DELETE FROM RepeatTable
-    WHERE habitId = :habitId
-      AND dayOfWeek NOT IN (:newDays)
-"""
-    )
+    @Query("DELETE FROM RepeatTable WHERE habitId = :habitId AND dayOfWeek NOT IN (:newDays)")
     suspend fun deleteRemovedDays(habitId: Long, newDays: List<DayOfWeek>)
 
 
@@ -87,7 +81,6 @@ interface HabitDao {
                 }
             }
         }
-
     }
 
 

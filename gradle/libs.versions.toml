@@ -19,6 +19,8 @@ navigation = "2.9.1"
 hilt-navigation = "1.2.0"
 kotlinx-serialization = "1.7.3"
 jetbrainsKotlinJvm = "2.0.21"
+glance = "1.1.1"
+composeCompiler = "1.5.15"
 
 
 [libraries]
@@ -48,6 +50,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+glance-material = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 
 
 
