@@ -5,8 +5,6 @@ import android.util.Log
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.updateAll
-
 import com.jolabs.habit.ui.widgets.WidgetEntryPoint
 import com.jolabs.model.HabitEntryModel
 import com.jolabs.model.HabitStatus
@@ -14,10 +12,8 @@ import com.jolabs.util.DateUtils
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
-import Resource
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.glance.appwidget.state.updateAppWidgetState
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class OpenToggleHabitAction: ActionCallback {
     override suspend fun onAction(
@@ -29,7 +25,6 @@ class OpenToggleHabitAction: ActionCallback {
         val date = parameters[EpochDateKey] ?: DateUtils.todayEpochDay()
         val statusName = parameters[StatusKey]
 
-        // Handle potential parsing errors for the status
         val currentStatus = statusName?.let { runCatching { HabitStatus.valueOf(it) }.getOrNull() } ?: HabitStatus.NONE
 
         // Treat SKIPPED as NONE for widget interactions, and determine the new status concisely
@@ -42,13 +37,33 @@ class OpenToggleHabitAction: ActionCallback {
         val repo = entryPoint.habitRepository()
 
         try {
-            // Upsert the habit entry with the new status
-            repo.upsertHabitEntry(HabitEntryModel(habitId = habitId, date = date, isCompleted = newStatus))
-            Log.d("OpenToggleHabitAction", "Successfully updated habitId: $habitId to status: $newStatus")
-
+            withContext(Dispatchers.IO) {
+                repo.upsertHabitEntry(
+                    HabitEntryModel(
+                        habitId = habitId,
+                        date = date,
+                        isCompleted = newStatus
+                    )
+                )
+            }
         } catch (e: Exception) {
             Log.e("OpenToggleHabitAction", "Error updating habitId: $habitId", e)
-            // Optionally, handle the error gracefully, e.g., show a toast to the user
+            return
         }
+
+        try {
+            withContext(Dispatchers.IO) {
+                val day = LocalDate.ofEpochDay(date).dayOfWeek
+                repo.getHabitByDate(day, date).first { res ->
+                    val list = res.data ?: return@first false
+                    list.any { it.id == habitId && it.habitState == newStatus }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("OpenToggleHabitAction", "Error updating habitId: $habitId", e)
+            return
+        }
+
+        ToggleHabitWidget().update(context, glanceId)
     }
 }

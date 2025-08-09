@@ -41,9 +41,8 @@ import com.jolabs.util.DateUtils.todayEpochDay
 import Resource
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Box
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 
@@ -126,7 +125,7 @@ class ToggleHabitWidget : GlanceAppWidget() {
                         }
                     } else {
                         LazyColumn {
-                            itemsIndexed(habits) { index,item ->
+                            items(habits, itemId = { it.id }) { item ->
                                 Row(
                                     modifier = GlanceModifier.fillMaxWidth()
                                 ) {
@@ -136,7 +135,6 @@ class ToggleHabitWidget : GlanceAppWidget() {
                                             actionParametersOf(
                                                 HabitIdKey to item.id,
                                                 EpochDateKey to todayEpoch,
-                                                // For widget, map SKIPPED to NONE so widget stays binary
                                                 StatusKey to (if (item.habitState == HabitStatus.COMPLETED) HabitStatus.COMPLETED.name else HabitStatus.NONE.name),
                                             )
                                         ),
