@@ -2,4 +2,5 @@
 <resources>
     <string name="add_habit">Add Habit</string>
     <string name="widget_add_habit_description">Quickly add a new habit without opening the app</string>
+    <string name="loading_habits">Loading habits...</string>
 </resources>

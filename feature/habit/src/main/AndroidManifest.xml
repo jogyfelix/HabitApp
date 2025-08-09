@@ -12,5 +12,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/add_habit_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".ui.widgets.habitList.ToggleHabitWidgetReceiver"
+            android:label="Today's Habits"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/toggle_habit_widget_info" />
+        </receiver>
     </application>
 </manifest>

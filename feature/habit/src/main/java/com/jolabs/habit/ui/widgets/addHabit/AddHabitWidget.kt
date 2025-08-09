@@ -36,14 +36,14 @@ class AddHabitWidget : GlanceAppWidget() {
                Box(
                    modifier = GlanceModifier
                        .fillMaxSize()
-                       .background(GlanceTheme.colors.primaryContainer)
+                       .background(GlanceTheme.colors.background)
                        .clickable(actionRunCallback<OpenCreateHabitAction>()),
                         contentAlignment = Alignment.Center
                ) {
                    Image(
                        provider = ImageProvider(R.drawable.add_task),
                        contentDescription = "Add Habit",
-                       colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurfaceVariant),
+                       colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground),
                        modifier = GlanceModifier.size(40.dp)
                    )
                }
