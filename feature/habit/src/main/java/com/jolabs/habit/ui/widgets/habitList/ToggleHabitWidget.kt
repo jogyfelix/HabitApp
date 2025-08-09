@@ -3,6 +3,7 @@ package com.jolabs.habit.ui.widgets.habitList
 import OpenCreateHabitAction
 import android.content.Context
 import android.os.Build
+import dagger.hilt.android.EntryPointAccessors
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -15,6 +16,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.action.actionParametersOf
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -32,13 +34,37 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.jolabs.design_system.ui.theme.MyWidgetColorScheme
 import com.jolabs.habit.R
+import com.jolabs.habit.ui.widgets.WidgetEntryPoint
+import com.jolabs.model.HabitBasic
+import com.jolabs.model.HabitStatus
+import com.jolabs.util.DateUtils.todayEpochDay
+import Resource
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.first
+import java.time.LocalDate
+
 
 class ToggleHabitWidget : GlanceAppWidget() {
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId
     ) {
+        // Fetch today's habits once for the current render
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            WidgetEntryPoint::class.java
+        )
+        val repository = entryPoint.habitRepository()
+        val todayEpoch = todayEpochDay()
+        val today = LocalDate.now()
+
         provideContent {
+
+            val resource by repository.getHabitByDate(today.dayOfWeek, todayEpoch)
+                .collectAsState(initial = Resource.Loading())
+            val habits: List<HabitBasic> = resource.data ?: emptyList()
+
             GlanceTheme(
                 colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     GlanceTheme.colors
@@ -82,18 +108,45 @@ class ToggleHabitWidget : GlanceAppWidget() {
 
                     Spacer(GlanceModifier.height(8.dp))
 
-                    LazyColumn {
-                        items(10) {
-                            Row {
-                                CheckBox(
-                                    checked = false,
-                                    onCheckedChange = {},
-                                    text = "Do something",
-                                    colors = CheckboxDefaults.colors(
-                                        checkedColor = MyWidgetColorScheme.colors.primary,
-                                        uncheckedColor = MyWidgetColorScheme.colors.outline,
-                                    )
+                    if (habits.isEmpty()) {
+                        Row(
+                            modifier = GlanceModifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "No habits for today",
+                                style = TextStyle(
+                                    color = GlanceTheme.colors.onBackground
                                 )
+                            )
+                        }
+                    } else {
+                        LazyColumn {
+                            items(habits.size) { index ->
+                                val item = habits[index]
+                                Row(
+                                    modifier = GlanceModifier.fillMaxWidth()
+                                ) {
+                                    CheckBox(
+                                        checked = item.habitState == HabitStatus.COMPLETED,
+                                        onCheckedChange = actionRunCallback<OpenToggleHabitAction>(
+                                            actionParametersOf(
+                                                HabitIdKey to item.id,
+                                                EpochDateKey to todayEpoch,
+                                                // For widget, map SKIPPED to NONE so widget stays binary
+                                                StatusKey to (if (item.habitState == HabitStatus.COMPLETED) HabitStatus.COMPLETED.name else HabitStatus.NONE.name),
+                                            )
+                                        ),
+                                        text = item.name,
+                                        colors = CheckboxDefaults.colors(
+                                            checkedColor = MyWidgetColorScheme.colors.primary,
+                                            uncheckedColor = MyWidgetColorScheme.colors.outline,
+                                        )
+                                    )
+                                }
                             }
                         }
                     }

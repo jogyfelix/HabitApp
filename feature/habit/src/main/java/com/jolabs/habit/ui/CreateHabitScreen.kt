@@ -87,6 +87,8 @@ internal fun CreateHabitRoute(
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
+
+                UIEvent.UpdateWidget -> null
             }
         }
     }

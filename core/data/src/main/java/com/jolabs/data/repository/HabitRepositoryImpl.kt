@@ -63,6 +63,7 @@ class HabitRepositoryImpl @Inject constructor(
         emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
     }
 
+    // TODO make this atomic
     override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
         val habitEntry = habitEntry.toEntity()
         habitDao.upsertHabitEntry(habitEntry)

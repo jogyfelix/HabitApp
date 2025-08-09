@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -64,6 +65,7 @@ import com.jolabs.model.HabitStatus
 import com.jolabs.ui.UIEvent
 import com.jolabs.util.DateUtils.formatEpochDay
 import com.jolabs.util.DateUtils.todayEpochDay
+import com.jolabs.habit.ui.widgets.WidgetRefresher
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -83,10 +85,14 @@ internal fun HabitHomeRoute(
     LaunchedEffect(Unit) {
         habitHomeViewModel.uiEvent.collect { event ->
             when (event) {
-                UIEvent.NavigateUp -> {}
+                UIEvent.NavigateUp -> null
 
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                UIEvent.UpdateWidget -> {
+                    WidgetRefresher.refreshToggleWidget(context)
                 }
             }
         }
