@@ -83,12 +83,9 @@ internal fun CreateHabitRoute(
                 UIEvent.NavigateUp -> {
                     onNavigateUp()
                 }
-
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
-
-                UIEvent.UpdateWidget -> null
             }
         }
     }

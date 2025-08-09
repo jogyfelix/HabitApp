@@ -90,10 +90,6 @@ internal fun HabitHomeRoute(
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
-
-                UIEvent.UpdateWidget -> {
-                    WidgetRefresher.refreshToggleWidget(context)
-                }
             }
         }
     }

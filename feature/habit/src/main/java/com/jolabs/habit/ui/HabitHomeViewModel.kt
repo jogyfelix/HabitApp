@@ -82,7 +82,6 @@ class HabitHomeViewModel @Inject constructor(
             val habit = habitRepository.deleteHabit(habitId)
             if(habit == 1) {
                 _uiEvent.emit(UIEvent.ShowMessage("Habit deleted successfully"))
-                _uiEvent.emit(UIEvent.UpdateWidget)
             }
 
         }

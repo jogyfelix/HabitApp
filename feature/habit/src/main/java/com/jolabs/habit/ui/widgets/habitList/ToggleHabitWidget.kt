@@ -41,6 +41,8 @@ import com.jolabs.util.DateUtils.todayEpochDay
 import Resource
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.layout.Box
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
@@ -78,6 +80,7 @@ class ToggleHabitWidget : GlanceAppWidget() {
                         .fillMaxSize()
                         .background(GlanceTheme.colors.background)
                         .padding(8.dp)
+                        , verticalAlignment = Alignment.Top
                 ) {
                     Row(
                         modifier = GlanceModifier.fillMaxWidth()
@@ -109,24 +112,21 @@ class ToggleHabitWidget : GlanceAppWidget() {
                     Spacer(GlanceModifier.height(8.dp))
 
                     if (habits.isEmpty()) {
-                        Row(
-                            modifier = GlanceModifier
-                                .fillMaxWidth()
+                        Box(
+                            modifier = GlanceModifier.fillMaxSize()
                                 .padding(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalAlignment = Alignment.CenterVertically
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 "No habits for today",
                                 style = TextStyle(
-                                    color = GlanceTheme.colors.onBackground
+                                    color = GlanceTheme.colors.outline
                                 )
                             )
                         }
                     } else {
                         LazyColumn {
-                            items(habits.size) { index ->
-                                val item = habits[index]
+                            itemsIndexed(habits) { index,item ->
                                 Row(
                                     modifier = GlanceModifier.fillMaxWidth()
                                 ) {
