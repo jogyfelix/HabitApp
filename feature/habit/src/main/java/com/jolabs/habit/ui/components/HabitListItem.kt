@@ -61,13 +61,15 @@ internal fun HabitListItem(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text(
-                    description,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+                if(description.isNotEmpty()){
+                    Text(
+                        description,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
                 Text(
                     "longest streak : $longestStreak times",
                     style = MaterialTheme.typography.bodySmall,
