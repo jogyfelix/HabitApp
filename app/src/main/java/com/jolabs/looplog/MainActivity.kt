@@ -29,7 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var appUpdateManager: AppUpdateManager
-    private val showUpdateDialog = mutableStateOf(true)
+    private val showUpdateDialog = mutableStateOf(false)
 
     private val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
