@@ -22,6 +22,7 @@ jetbrainsKotlinJvm = "2.0.21"
 glance = "1.1.1"
 composeCompiler = "1.5.15"
 material3 = "1.2.1"
+playAppUpdate = "2.1.0"
 
 
 [libraries]
@@ -53,6 +54,8 @@ hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", v
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
 glance-material = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
+play-app-update = { module = "com.google.android.play:app-update", version.ref = "playAppUpdate" }
+play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "playAppUpdate" }
 
 
 

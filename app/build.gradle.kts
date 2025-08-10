@@ -16,7 +16,7 @@ android {
         minSdk = 29
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -68,6 +68,9 @@ dependencies {
     implementation(libs.hilt.navigation)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
 
     implementation(project(":feature:habit"))
     implementation(project(":core:design-system"))
