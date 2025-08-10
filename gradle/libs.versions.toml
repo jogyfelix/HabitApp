@@ -21,6 +21,7 @@ kotlinx-serialization = "1.7.3"
 jetbrainsKotlinJvm = "2.0.21"
 glance = "1.1.1"
 composeCompiler = "1.5.15"
+material3 = "1.2.1"
 
 
 [libraries]

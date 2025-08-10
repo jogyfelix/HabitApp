@@ -1,7 +1,6 @@
 package com.jolabs.habit.ui
 
 import Resource
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -33,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -40,12 +39,10 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -60,12 +57,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.habit.ui.components.HabitListItem
 import com.jolabs.design_system.ui.theme.HabitShapes
 import com.jolabs.habit.R
+import com.jolabs.habit.utils.PastDatesSelectableDates
 import com.jolabs.model.HabitBasic
 import com.jolabs.model.HabitStatus
 import com.jolabs.ui.UIEvent
 import com.jolabs.util.DateUtils.formatEpochDay
 import com.jolabs.util.DateUtils.todayEpochDay
-import com.jolabs.habit.ui.widgets.WidgetRefresher
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -125,7 +122,8 @@ internal fun HabitHomeScreen(
         initialSelectedDateMillis = remember(selectedDate) {
             LocalDate.ofEpochDay(selectedDate).atStartOfDay(ZoneOffset.UTC).toInstant()
                 .toEpochMilli()
-        }
+        },
+        selectableDates = PastDatesSelectableDates()
     )
 
     val formattedDate = remember(selectedDate) {
