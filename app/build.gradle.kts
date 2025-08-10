@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.habitapp"
+    namespace = "com.jolabs.looplog"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.jolabs.habitapp"
+        applicationId = "com.jolabs.looplog"
         minSdk = 29
         targetSdk = 35
         versionCode = 1

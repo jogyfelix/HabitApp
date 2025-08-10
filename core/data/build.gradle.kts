@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.data"
+    namespace = "com.jolabs.looplog.data"
     compileSdk = 35
 
     defaultConfig {

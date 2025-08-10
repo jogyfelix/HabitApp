@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.habit"
+    namespace = "com.jolabs.looplog.habit"
     compileSdk = 35
 
     defaultConfig {

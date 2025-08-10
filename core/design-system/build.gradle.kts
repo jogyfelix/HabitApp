@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.design_system"
+    namespace = "com.jolabs.looplog.design_system"
     compileSdk = 35
 
     defaultConfig {

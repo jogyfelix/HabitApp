@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jolabs.ui"
+    namespace = "com.jolabs.looplog.ui"
     compileSdk = 35
 
     defaultConfig {
