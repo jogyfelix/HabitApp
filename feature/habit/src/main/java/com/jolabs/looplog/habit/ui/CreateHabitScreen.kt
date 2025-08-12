@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -97,6 +99,7 @@ internal fun CreateHabitRoute(
         timePickerState = timePickerState,
         onNavigateUp = onNavigateUp,
         onSelectedDayToggle = createHabitViewModel::onSelectedDayToggle,
+        toggleAllDays = createHabitViewModel::toggleAllDays,
         onHabitNameChange = createHabitViewModel::onHabitNameChange,
         onHabitDescriptionChange = createHabitViewModel::onHabitDescriptionChange,
         onTimeOfDayChange = createHabitViewModel::onTimeOfDayChange,
@@ -115,6 +118,7 @@ internal fun CreateHabitScreen(
     timePickerState: TimePickerState = rememberTimePickerState(),
     onNavigateUp: () -> Unit = {},
     onSelectedDayToggle: (DayOfWeek) -> Unit = {},
+    toggleAllDays: (Boolean) -> Unit = {},
     onHabitNameChange: (String) -> Unit = {},
     onHabitDescriptionChange: (String) -> Unit = {},
     onTimeOfDayChange: (Long?) -> Unit = {},
@@ -215,37 +219,44 @@ internal fun CreateHabitScreen(
                 ),
                 label = { Text("Description") }
             )
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        showTimePicker = true
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showTimePicker = true
+                        },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledContainerColor = OutlinedTextFieldDefaults.colors().focusedContainerColor,
+                        disabledTextColor = OutlinedTextFieldDefaults.colors().focusedTextColor,
+                        disabledLabelColor = OutlinedTextFieldDefaults.colors().unfocusedLabelColor,
+                        disabledLeadingIconColor = OutlinedTextFieldDefaults.colors().focusedLeadingIconColor,
+                        disabledTrailingIconColor = OutlinedTextFieldDefaults.colors().focusedTrailingIconColor,
+                        disabledPlaceholderColor = OutlinedTextFieldDefaults.colors().focusedPlaceholderColor,
+                        disabledBorderColor = OutlinedTextFieldDefaults.colors().unfocusedIndicatorColor,
+                    ),
+                    value = timeText,
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = false,
+                    trailingIcon = {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                onTimeOfDayChange(null)
+                            }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time"
+                        )
                     },
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledContainerColor = OutlinedTextFieldDefaults.colors().focusedContainerColor,
-                    disabledTextColor = OutlinedTextFieldDefaults.colors().focusedTextColor,
-                    disabledLabelColor = OutlinedTextFieldDefaults.colors().unfocusedLabelColor,
-                    disabledLeadingIconColor = OutlinedTextFieldDefaults.colors().focusedLeadingIconColor,
-                    disabledTrailingIconColor = OutlinedTextFieldDefaults.colors().focusedTrailingIconColor,
-                    disabledPlaceholderColor = OutlinedTextFieldDefaults.colors().focusedPlaceholderColor,
-                    disabledBorderColor = OutlinedTextFieldDefaults.colors().unfocusedIndicatorColor,
-                ),
-                value = timeText,
-                onValueChange = {},
-                readOnly = true,
-                enabled = false,
-                trailingIcon = {
-                    Icon(
-                        modifier = Modifier.clickable {
-                            onTimeOfDayChange(null)
-                        }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time"
-                    )
-                },
-                label = { Text("Set a Time (Optional)") }
-            )
+                    label = { Text("Set a Time (Optional)") }
+                )
+
+                Text("Setting the time would create a notification for you",
+                    color = MaterialTheme.colorScheme.outline,
+                    style = MaterialTheme.typography.bodySmall)
+            }
             WeekSelector(
                 selectedDays = selectedDays,
-                onDayToggled = onSelectedDayToggle
+                onDayToggled = onSelectedDayToggle,
+                toggleAllDays = toggleAllDays
             )
             Spacer(Modifier.height(10.dp))
 

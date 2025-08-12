@@ -9,20 +9,32 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
 
 @Composable
-fun WeekSelector(selectedDays : List<DayOfWeek>,
-                 onDayToggled: (DayOfWeek) -> Unit = {}) {
+fun WeekSelector(
+    selectedDays: List<DayOfWeek>,
+    onDayToggled: (DayOfWeek) -> Unit = {},
+    toggleAllDays: (Boolean) -> Unit = {}
+) {
+
+
+    val (checkedState, onStateChange) = remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -43,6 +55,31 @@ fun WeekSelector(selectedDays : List<DayOfWeek>,
                     { onDayToggled(day) }
                 )
             }
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+                .toggleable(
+                    value = checkedState,
+                    onValueChange = {
+                        onStateChange(it)
+                        toggleAllDays(it)
+                    },
+                    role = Role.Checkbox
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checkedState,
+                onCheckedChange = null
+            )
+            Text(
+                text = "Everyday",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
@@ -88,5 +125,8 @@ private fun DayItem(
 @Preview(showBackground = true)
 @Composable
 private fun WeekSelectorPreview() {
-//    WeekSelector()
+    WeekSelector(
+        selectedDays = emptyList(),
+        onDayToggled = {}
+    )
 }

@@ -48,6 +48,13 @@ class CreateHabitViewModel @Inject constructor(
         }
     }
 
+    val allDays = DayOfWeek.entries.toList()
+    internal fun toggleAllDays(show: Boolean) {
+        _selectedDays.update { current ->
+            if (!show) emptyList() else allDays
+        }
+    }
+
     internal fun onHabitNameChange(name : String) {
         _habitName.value = name
     }

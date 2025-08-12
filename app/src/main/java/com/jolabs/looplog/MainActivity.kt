@@ -141,7 +141,6 @@ class MainActivity : ComponentActivity() {
     private fun checkForUpdates() {
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-            // Example strategy: immediate for high priority / stale updates; else flexible
             val isImmediateAllowed = appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             val isFlexibleAllowed = appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
             val priority = appUpdateInfo.updatePriority() // 0..5 set via Play API
