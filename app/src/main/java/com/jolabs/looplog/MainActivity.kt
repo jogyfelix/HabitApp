@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -73,21 +74,21 @@ class MainActivity : ComponentActivity() {
                           onDismissRequest = {
                               showUpdateDialog.value = false
                           },
-                          title = { Text("Update ready") },
-                          text = { Text("A new version has been downloaded. Install now?") },
+                          title = { Text(stringResource(R.string.update_ready)) },
+                          text = { Text(stringResource(R.string.new_version_desc)) },
                           confirmButton = {
                               TextButton(onClick = {
                                   showUpdateDialog.value = false
                                   appUpdateManager.completeUpdate()
                               }) {
-                                  Text("Install")
+                                  Text(stringResource(R.string.install))
                               }
                           },
                           dismissButton = {
                               TextButton(onClick = {
                                   showUpdateDialog.value = false
                               }) {
-                                  Text("Later")
+                                  Text(stringResource(R.string.later))
                               }
                           }
                       )

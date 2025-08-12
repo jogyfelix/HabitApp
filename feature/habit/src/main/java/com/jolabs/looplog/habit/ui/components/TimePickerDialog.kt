@@ -16,9 +16,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.jolabs.looplog.habit.R
 
 @Composable
 fun TimePickerDialog(
@@ -33,13 +35,18 @@ fun TimePickerDialog(
        ElevatedCard(
            modifier = Modifier
                .wrapContentWidth()
-               .background(color = MaterialTheme.colorScheme.surface,
-                   shape = MaterialTheme.shapes.extraLarge),
+               .background(
+                   color = MaterialTheme.colorScheme.surface,
+                   shape = MaterialTheme.shapes.extraLarge
+               ),
            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
            shape = MaterialTheme.shapes.extraLarge
        ){
-           Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
-               Text("Select Time",
+           Column(modifier = Modifier
+               .padding(16.dp)
+               .verticalScroll(rememberScrollState())) {
+               Text(
+                   stringResource(R.string.choose_time),
                    style = MaterialTheme.typography.titleLarge)
 
                Spacer(modifier = Modifier.padding(8.dp))
@@ -49,10 +56,10 @@ fun TimePickerDialog(
                        onClick = onDismiss
 
                    ) {
-                       Text("Cancel")
+                       Text(stringResource(R.string.cancel))
                    }
                    TextButton(onClick = onConfirm) {
-                       Text("Confirm")
+                       Text(stringResource(R.string.set_time))
                    }
 
                }
@@ -60,21 +67,4 @@ fun TimePickerDialog(
 
        }
    }
-
-
-
-//    AlertDialog(
-//        onDismissRequest = onDismiss,
-//        dismissButton = {
-//            TextButton(onClick = { onDismiss() }) {
-//                Text("Dismiss")
-//            }
-//        },
-//        confirmButton = {
-//            TextButton(onClick = { onConfirm() }) {
-//                Text("OK")
-//            }
-//        },
-//        text = { content() }
-//    )
 }

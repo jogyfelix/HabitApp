@@ -41,6 +41,8 @@ import com.jolabs.looplog.util.DateUtils.todayEpochDay
 import Resource
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import androidx.glance.ColorFilter
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Box
 import java.time.LocalDate
@@ -89,7 +91,7 @@ class ToggleHabitWidget : GlanceAppWidget() {
                     ) {
 
                         Text(
-                            "Today", style = TextStyle(
+                            stringResource(R.string.today), style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 color = GlanceTheme.colors.onBackground
@@ -99,7 +101,8 @@ class ToggleHabitWidget : GlanceAppWidget() {
                         Spacer(GlanceModifier.defaultWeight())
                         Image(
                             provider = ImageProvider(R.drawable.add),
-                            contentDescription = "Add habit",
+                            contentDescription = stringResource(R.string.add_habit),
+                            colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground),
                             modifier = GlanceModifier
                                 .size(16.dp)
                                 .clickable(
@@ -117,7 +120,7 @@ class ToggleHabitWidget : GlanceAppWidget() {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "No habits for today",
+                                stringResource(R.string.no_habits_today_short),
                                 style = TextStyle(
                                     color = GlanceTheme.colors.outline
                                 )

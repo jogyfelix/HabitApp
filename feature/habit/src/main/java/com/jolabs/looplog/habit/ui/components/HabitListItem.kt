@@ -19,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jolabs.looplog.design_system.ui.theme.HabitShapes
+import com.jolabs.looplog.habit.R
 
 @Composable
 internal fun HabitListItem(
@@ -43,10 +45,12 @@ internal fun HabitListItem(
     val textColor = MaterialTheme.colorScheme.onPrimary
 
     Row(
-        modifier = modifier.fillMaxWidth().combinedClickable(
-            onClick = { onHabitPress(id) },
-            onLongClick = { deleteHabitPress(id) }
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = { onHabitPress(id) },
+                onLongClick = { deleteHabitPress(id) }
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -71,7 +75,7 @@ internal fun HabitListItem(
                     )
                 }
                 Text(
-                    "longest streak : $longestStreak times",
+                    stringResource(R.string.longest_streak, longestStreak),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary
                 )

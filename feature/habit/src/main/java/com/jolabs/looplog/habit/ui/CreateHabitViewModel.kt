@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jolabs.looplog.data.repository.HabitRepository
 import com.jolabs.looplog.domain.CreateHabitUseCase
+import com.jolabs.looplog.habit.R
 import com.jolabs.looplog.model.CreateHabit
 import com.jolabs.looplog.ui.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -100,12 +101,12 @@ class CreateHabitViewModel @Inject constructor(
         viewModelScope.launch {
 
             if(_habitName.value.isBlank()){
-                _uiEvent.emit(UIEvent.ShowMessage("Habit name cannot be empty"))
+                _uiEvent.emit(UIEvent.ShowMessage(UiMessage.StringRes(R.string.enter_a_habit_name)))
                 return@launch
             }
 
             if(_selectedDays.value.isEmpty()){
-                _uiEvent.emit(UIEvent.ShowMessage("Please select at least one day of the week"))
+                _uiEvent.emit(UIEvent.ShowMessage(UiMessage.StringRes(R.string.select_at_least_one_day)))
                 return@launch
             }
 
@@ -122,7 +123,7 @@ class CreateHabitViewModel @Inject constructor(
                     )
                 )
             }
-            _uiEvent.emit(UIEvent.ShowMessage("Your habit has been saved"))
+            _uiEvent.emit(UIEvent.ShowMessage(UiMessage.StringRes(R.string.habit_saved)))
             _uiEvent.emit(UIEvent.NavigateUp)
         }
     }

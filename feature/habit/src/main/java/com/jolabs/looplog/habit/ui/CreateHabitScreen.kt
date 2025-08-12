@@ -44,14 +44,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowHeightSizeClass
-import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.jolabs.looplog.habit.R
 import com.jolabs.looplog.habit.ui.components.TimePickerDialog
 import com.jolabs.looplog.habit.ui.components.WeekSelector
 import com.jolabs.looplog.ui.UIEvent
@@ -89,7 +90,11 @@ internal fun CreateHabitRoute(
                 }
 
                 is UIEvent.ShowMessage -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    val text = when (val msg = event.message) {
+                        is UiMessage.StringRes -> context.getString(msg.resId)
+                        is UiMessage.Text -> msg.message
+                    }
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -155,10 +160,12 @@ internal fun CreateHabitScreen(
             .windowInsetsPadding(WindowInsets.safeDrawing),
         topBar = {
             TopAppBar(
-                title = { Text("Add habit") },
+                title = { Text(stringResource(R.string.add_habit)) },
                 navigationIcon = {
                     IconButton(onClick = { onNavigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(
+                            R.string.go_back
+                        ))
                     }
                 }
             )
@@ -211,7 +218,7 @@ internal fun CreateHabitScreen(
                 onValueChange = {
                     onHabitNameChange(it)
                 },
-                label = { Text("Name") }
+                label = { Text(stringResource(R.string.habit_name)) }
             )
 
             OutlinedTextField(
@@ -229,7 +236,7 @@ internal fun CreateHabitScreen(
                         showTimePicker = true
                     }
                 ),
-                label = { Text("Description") }
+                label = { Text(stringResource(R.string.details)) }
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -257,14 +264,14 @@ internal fun CreateHabitScreen(
                                 onTimeOfDayChange(null)
                             },
                             imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Clear Time"
+                            contentDescription = stringResource(R.string.remove_time)
                         )
                     },
-                    label = { Text("Set a Time (Optional)") }
+                    label = { Text(stringResource(R.string.set_time_optional)) }
                 )
 
                 Text(
-                    "Setting the time would create a notification for you",
+                    stringResource(R.string.time_reminder),
                     color = MaterialTheme.colorScheme.outline,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -282,7 +289,7 @@ internal fun CreateHabitScreen(
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save_habit))
             }
         }
     }

@@ -4,6 +4,7 @@ import Resource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jolabs.looplog.data.repository.HabitRepository
+import com.jolabs.looplog.habit.R
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitEntryModel
 import com.jolabs.looplog.model.HabitStatus
@@ -81,7 +82,7 @@ class HabitHomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val habit = habitRepository.deleteHabit(habitId)
             if(habit == 1) {
-                _uiEvent.emit(UIEvent.ShowMessage("Habit deleted successfully"))
+                _uiEvent.emit(UIEvent.ShowMessage(UiMessage.StringRes(R.string.habit_deleted)))
             }
 
         }

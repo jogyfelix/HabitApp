@@ -3,6 +3,7 @@ package com.jolabs.looplog.habit.ui.widgets.addHabit
 import OpenCreateHabitAction
 import android.content.Context
 import android.os.Build
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -42,7 +43,7 @@ class AddHabitWidget : GlanceAppWidget() {
                ) {
                    Image(
                        provider = ImageProvider(R.drawable.add_task),
-                       contentDescription = "Add Habit",
+                       contentDescription = stringResource(R.string.add_habit),
                        colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground),
                        modifier = GlanceModifier.size(40.dp)
                    )

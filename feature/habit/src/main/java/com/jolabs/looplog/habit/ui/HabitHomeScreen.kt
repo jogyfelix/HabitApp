@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,7 +85,11 @@ internal fun HabitHomeRoute(
                 UIEvent.NavigateUp -> null
 
                 is UIEvent.ShowMessage -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    val text = when (val msg = event.message) {
+                        is UiMessage.StringRes -> context.getString(msg.resId)
+                        is UiMessage.Text -> msg.message
+                    }
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -142,18 +147,20 @@ internal fun HabitHomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(formattedDate)
+                    Text(if(formattedDate == "Today") stringResource(R.string.today) else formattedDate)
                     Icon(
                         modifier = Modifier.clickable {
                             showDatePicker = true
-                        }, imageVector = Icons.Default.DateRange, contentDescription = "Add"
+                        }, imageVector = Icons.Default.DateRange, contentDescription = stringResource(
+                            R.string.add
+                        )
                     )
                 }
             })
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { onCreatePress(0) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.new_habit))
             }
         }) { innerPadding ->
 
@@ -173,14 +180,14 @@ internal fun HabitHomeScreen(
                         }
                         showDatePicker = false
                     }) {
-                        Text("Confirm")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = {
                         showDatePicker = false
                     }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
                 modifier = Modifier.verticalScroll(rememberScrollState())
@@ -190,7 +197,7 @@ internal fun HabitHomeScreen(
                     showModeToggle = false,
                     title = {
                         Text(
-                            "Select Date",
+                            stringResource(R.string.select_date),
                             modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.titleLarge
                         )
@@ -206,10 +213,10 @@ internal fun HabitHomeScreen(
                     showDeleteDialog = false
                 },
                 title = {
-                    Text(text = "Delete habit?")
+                    Text(text = stringResource(R.string.delete_habit))
                 },
                 text = {
-                    Text(text = "This will permanently delete the habit and all of its progress. This action cannot be undone.")
+                    Text(text = stringResource(R.string.delete_habit_desc))
                 },
                 confirmButton = {
                     TextButton(
@@ -219,7 +226,7 @@ internal fun HabitHomeScreen(
                             deleteHabitId = 0L
                         }
                     ) {
-                        Text("Confirm")
+                        Text(stringResource(R.string.delete))
                     }
                 },
                 dismissButton = {
@@ -228,7 +235,7 @@ internal fun HabitHomeScreen(
                             showDeleteDialog = false
                         }
                     ) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.dismiss))
                     }
                 }
             )
@@ -245,12 +252,12 @@ internal fun HabitHomeScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.data_empty),
-                            contentDescription = "My custom icon",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.outline,
                             modifier = Modifier.size(88.dp)
                         )
                         Text(
-                            text = "Oops! Something went wrong while loading your habits. Don't worry, we're on it. Please try again in a bit!",
+                            text = stringResource(R.string.habit_load_error),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.outline,
                             textAlign = TextAlign.Center
@@ -328,12 +335,12 @@ internal fun HabitHomeScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.event_list),
-                                contentDescription = "My custom icon",
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.outline,
                                 modifier = Modifier.size(88.dp)
                             )
                             Text(
-                                text = "No habits scheduled for today. Ready to start a new one?",
+                                text = stringResource(R.string.no_habits_today),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.outline,
                                 textAlign = TextAlign.Center

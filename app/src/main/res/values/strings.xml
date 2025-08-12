@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">looplog</string>
+    <string name="update_ready">Update Available</string>
+    <string name="new_version_desc">The latest version is ready to install.</string>
+    <string name="install">Install</string>
+    <string name="later">Later</string>
 </resources>

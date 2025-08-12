@@ -3,7 +3,7 @@
     <application>
         <receiver
             android:name=".ui.widgets.addHabit.AddHabitWidgetReceiver"
-            android:label="Add Habit"
+            android:label="@string/add_habit"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -15,7 +15,7 @@
 
         <receiver
             android:name=".ui.widgets.habitList.ToggleHabitWidgetReceiver"
-            android:label="Today's Habits"
+            android:label="@string/today_habits"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
