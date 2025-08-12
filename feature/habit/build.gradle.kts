@@ -45,6 +45,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.adaptive)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,6 +75,7 @@ dependencies {
 
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material)
+    implementation(libs.androidx.compose.material3.windowSizeClass)
 
     implementation(project(":core:design-system"))
     implementation(project(":core:domain"))

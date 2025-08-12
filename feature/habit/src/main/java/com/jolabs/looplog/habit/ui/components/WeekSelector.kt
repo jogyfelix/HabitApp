@@ -41,7 +41,7 @@ fun WeekSelector(
     ) {
         Text(
             "Repeat On",
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.outline
         )
         Row(
@@ -76,7 +76,7 @@ fun WeekSelector(
             )
             Text(
                 text = "Everyday",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.padding(start = 8.dp)
             )

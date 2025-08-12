@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +49,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowHeightSizeClass
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.jolabs.looplog.habit.ui.components.TimePickerDialog
 import com.jolabs.looplog.habit.ui.components.WeekSelector
 import com.jolabs.looplog.ui.UIEvent
@@ -84,6 +87,7 @@ internal fun CreateHabitRoute(
                 UIEvent.NavigateUp -> {
                     onNavigateUp()
                 }
+
                 is UIEvent.ShowMessage -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
@@ -124,6 +128,11 @@ internal fun CreateHabitScreen(
     onTimeOfDayChange: (Long?) -> Unit = {},
     createHabitPress: () -> Unit = {},
 ) {
+
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val isTabletExpanded = adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED &&
+            adaptiveInfo.windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+
 
     var showTimePicker by remember { mutableStateOf(false) }
     val timeText = remember(timeOfDay) {
@@ -180,7 +189,10 @@ internal fun CreateHabitScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(
+                    vertical = 16.dp,
+                    horizontal = if (isTabletExpanded) 200.dp else 16.dp
+                )
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -219,7 +231,7 @@ internal fun CreateHabitScreen(
                 ),
                 label = { Text("Description") }
             )
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -243,15 +255,19 @@ internal fun CreateHabitScreen(
                         Icon(
                             modifier = Modifier.clickable {
                                 onTimeOfDayChange(null)
-                            }, imageVector = Icons.Outlined.Delete, contentDescription = "Clear Time"
+                            },
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Clear Time"
                         )
                     },
                     label = { Text("Set a Time (Optional)") }
                 )
 
-                Text("Setting the time would create a notification for you",
+                Text(
+                    "Setting the time would create a notification for you",
                     color = MaterialTheme.colorScheme.outline,
-                    style = MaterialTheme.typography.bodySmall)
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             WeekSelector(
                 selectedDays = selectedDays,
