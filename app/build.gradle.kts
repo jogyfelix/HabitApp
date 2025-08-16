@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.hilt.work)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -71,6 +72,10 @@ dependencies {
 
     implementation(libs.play.app.update)
     implementation(libs.play.app.update.ktx)
+
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    implementation(libs.androidx.hilt.common)
 
     implementation(project(":feature:habit"))
     implementation(project(":core:design-system"))

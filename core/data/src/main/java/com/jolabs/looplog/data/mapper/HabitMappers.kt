@@ -3,10 +3,12 @@ package com.jolabs.looplog.data.mapper
 import com.jolabs.looplog.database.entity.HabitEntryStatus
 import com.jolabs.looplog.database.entity.HabitEntryTable
 import com.jolabs.looplog.database.entity.HabitTable
+import com.jolabs.looplog.database.entity.RepeatTable
 import com.jolabs.looplog.database.relation.HabitWithDetails
 import com.jolabs.looplog.model.CreateHabit
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitEntryModel
+import com.jolabs.looplog.model.HabitRepeat
 import com.jolabs.looplog.model.HabitStatus
 
 fun CreateHabit.toHabitTableEntity() : HabitTable {
@@ -64,5 +66,13 @@ fun HabitEntryModel.toEntity() : HabitEntryTable {
         date = date,
         isCompleted = isCompleted.toEntity(),
         updatedAtMillis = System.currentTimeMillis()
+    )
+}
+
+fun RepeatTable.toRepeatModel() : HabitRepeat{
+    return HabitRepeat(
+        habitId = habitId,
+        dayOfWeek = dayOfWeek,
+        timeOfDay = timeOfDay
     )
 }

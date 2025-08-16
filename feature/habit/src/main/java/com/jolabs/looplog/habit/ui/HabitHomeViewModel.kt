@@ -41,6 +41,7 @@ class HabitHomeViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<UIEvent>()
     val uiEvent : SharedFlow<UIEvent> = _uiEvent
 
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val habitList: StateFlow<Resource<List<HabitBasic>>> = combine(
     selectedDate,
@@ -88,4 +89,7 @@ class HabitHomeViewModel @Inject constructor(
         }
 
     }
+
+    internal suspend fun getRepeatDays(habitId: Long) : List<DayOfWeek> = habitRepository.getRepeatDaysFromHabit(habitId).map { it.dayOfWeek }
+
 }

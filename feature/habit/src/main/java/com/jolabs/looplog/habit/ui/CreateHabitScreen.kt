@@ -1,6 +1,13 @@
 package com.jolabs.looplog.habit.ui
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +34,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
@@ -38,6 +49,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -48,16 +60,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.jolabs.looplog.habit.R
+import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
 import com.jolabs.looplog.habit.ui.components.TimePickerDialog
 import com.jolabs.looplog.habit.ui.components.WeekSelector
 import com.jolabs.looplog.ui.UIEvent
 import java.time.DayOfWeek
 import java.util.Calendar
+import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.LocalDateTime.*
+import java.time.ZoneId
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,8 +94,8 @@ internal fun CreateHabitRoute(
     val habitName by createHabitViewModel.habitName.collectAsStateWithLifecycle()
     val habitDescription by createHabitViewModel.habitDescription.collectAsStateWithLifecycle()
     val timeOfDay by createHabitViewModel.timeOfDay.collectAsStateWithLifecycle()
-
-
+    val scope = rememberCoroutineScope()
+    val habitAlarmManager = HabitAlarmManager(LocalContext.current)
     val calendar = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
         initialHour = calendar.get(Calendar.HOUR_OF_DAY),
@@ -96,15 +118,30 @@ internal fun CreateHabitRoute(
                     }
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
+
+                is UIEvent.SetupAlarm -> {
+                  scope.launch(Dispatchers.IO) {
+                      habitAlarmManager.cancelAllHabitAlarms(event.habitId,event.daysOfWeek)
+                      habitAlarmManager.scheduleHabitAlarm(event.habitId, event.habitName,event.timeOfDay,event.daysOfWeek)
+
+                  }
+                       }
+                is UIEvent.RemoveAlarm -> {
+                    scope.launch(Dispatchers.IO) {
+                        habitAlarmManager.cancelAllHabitAlarms(event.habitId,event.daysOfWeek)
+                    }
+                }
             }
         }
     }
 
     CreateHabitScreen(
+        context = context,
         selectedDays = selectedDays,
         habitName = habitName,
         habitDescription = habitDescription,
         timeOfDay = timeOfDay,
+        habitAlarmManager = habitAlarmManager,
         timePickerState = timePickerState,
         onNavigateUp = onNavigateUp,
         onSelectedDayToggle = createHabitViewModel::onSelectedDayToggle,
@@ -120,10 +157,12 @@ internal fun CreateHabitRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CreateHabitScreen(
+    context: Context = LocalContext.current,
     selectedDays: List<DayOfWeek> = emptyList(),
     habitName: String = "",
     habitDescription: String = "",
     timeOfDay: Long? = null,
+    habitAlarmManager: HabitAlarmManager = HabitAlarmManager(LocalContext.current),
     timePickerState: TimePickerState = rememberTimePickerState(),
     onNavigateUp: () -> Unit = {},
     onSelectedDayToggle: (DayOfWeek) -> Unit = {},
@@ -135,8 +174,9 @@ internal fun CreateHabitScreen(
 ) {
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
-    val isTabletExpanded = adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED &&
-            adaptiveInfo.windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
+    val isTabletExpanded =
+        adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED &&
+                adaptiveInfo.windowSizeClass.windowHeightSizeClass != WindowHeightSizeClass.COMPACT
 
 
     var showTimePicker by remember { mutableStateOf(false) }
@@ -152,9 +192,41 @@ internal fun CreateHabitScreen(
     }
     val descFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()){
+        // Permission was denied, show a Snackbar with an action
+        if(!it){
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = "Notification permission is required to show reminders.",
+                    actionLabel = "Enable",
+                    withDismissAction = true,
+                    duration = SnackbarDuration.Long
+                )
+                // Handle the user's action on the Snackbar
+                when (result) {
+                    SnackbarResult.ActionPerformed -> {
+                        // User clicked "Enable," open app settings
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        }
+                        context.startActivity(intent)
+                    }
+                    SnackbarResult.Dismissed -> {
+                        // User dismissed the Snackbar
+                    }
+                }
+            }
+        }
+    }
+
 
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing),
@@ -163,15 +235,17 @@ internal fun CreateHabitScreen(
                 title = { Text(stringResource(R.string.add_habit)) },
                 navigationIcon = {
                     IconButton(onClick = { onNavigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(
-                            R.string.go_back
-                        ))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(
+                                R.string.go_back
+                            )
+                        )
                     }
                 }
             )
         }
     ) { innerPadding ->
-
         if (showTimePicker) {
             TimePickerDialog(
                 onDismiss = { showTimePicker = false },
@@ -243,7 +317,19 @@ internal fun CreateHabitScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            showTimePicker = true
+
+                            if(habitAlarmManager.checkNotificationPermission()) {
+                                if (habitAlarmManager.checkAlarmPermission()) {
+                                    showTimePicker = true
+                                } else {
+                                    val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                        data = "package:com.jolabs.looplog".toUri()
+                                    }
+                                    context.startActivity( intent, null)
+                                }
+                            }else {
+                                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
                         },
                     colors = OutlinedTextFieldDefaults.colors(
                         disabledContainerColor = OutlinedTextFieldDefaults.colors().focusedContainerColor,

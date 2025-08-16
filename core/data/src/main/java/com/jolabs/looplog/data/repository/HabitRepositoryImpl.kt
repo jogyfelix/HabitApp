@@ -5,12 +5,14 @@ import com.jolabs.looplog.data.mapper.toCreateHabit
 import com.jolabs.looplog.data.mapper.toDomain
 import com.jolabs.looplog.data.mapper.toEntity
 import com.jolabs.looplog.data.mapper.toHabitTableEntity
+import com.jolabs.looplog.data.mapper.toRepeatModel
 import com.jolabs.looplog.database.dao.HabitDao
 import com.jolabs.looplog.database.entity.HabitEntryStatus
 import com.jolabs.looplog.database.entity.StreakTable
 import com.jolabs.looplog.model.CreateHabit
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitEntryModel
+import com.jolabs.looplog.model.HabitRepeat
 import com.jolabs.looplog.util.DateUtils.toLocalDateFromEpochDays
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -35,6 +37,10 @@ class HabitRepositoryImpl @Inject constructor(
         return habitDao.deleteHabit(habitId)
     }
 
+    override suspend fun getRepeatDaysFromHabit(habitId: Long): List<HabitRepeat> {
+        return habitDao.getHabitRepetitionById(habitId).map { it.toRepeatModel() }
+    }
+
 
     override fun getAllHabits(): Flow<Resource<List<HabitBasic>>> = flow {
         emit(Resource.Loading())
@@ -46,6 +52,9 @@ class HabitRepositoryImpl @Inject constructor(
         emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
     }
 
+    override fun getAllHabitsDirect(): List<HabitBasic> {
+       return habitDao.getAllHabitsDirect().map { it.toDomain() }
+    }
 
 
     override suspend fun getHabitById(id: Long): CreateHabit? {

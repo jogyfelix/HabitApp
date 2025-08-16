@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,12 +58,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.looplog.habit.ui.components.HabitListItem
 import com.jolabs.looplog.design_system.ui.theme.HabitShapes
 import com.jolabs.looplog.habit.R
+import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
 import com.jolabs.looplog.habit.utils.PastDatesSelectableDates
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.ui.UIEvent
 import com.jolabs.looplog.util.DateUtils.formatEpochDay
 import com.jolabs.looplog.util.DateUtils.todayEpochDay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -78,6 +82,8 @@ internal fun HabitHomeRoute(
     val context = LocalContext.current
     val habitList = habitHomeViewModel.habitList.collectAsStateWithLifecycle()
     val selectedDate = habitHomeViewModel.selectedDate.collectAsStateWithLifecycle()
+    val habitAlarmManager = HabitAlarmManager(LocalContext.current)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         habitHomeViewModel.uiEvent.collect { event ->
@@ -91,6 +97,9 @@ internal fun HabitHomeRoute(
                     }
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
+
+                is UIEvent.SetupAlarm -> TODO()
+                is UIEvent.RemoveAlarm -> TODO()
             }
         }
     }
@@ -101,7 +110,13 @@ internal fun HabitHomeRoute(
         onSelectedDateChange = habitHomeViewModel::onSelectedDateChange,
         onSelectedDayChange = habitHomeViewModel::onSelectedDayChange,
         updateHabit = habitHomeViewModel::updateHabitEntry,
-        deleteHabitPress = habitHomeViewModel::deleteHabit
+        deleteHabitPress = {it ->
+           scope.launch(Dispatchers.IO) {
+               val daysOfWeek = habitHomeViewModel.getRepeatDays(it)
+               habitAlarmManager.cancelAllHabitAlarms(it,daysOfWeek)
+               habitHomeViewModel.deleteHabit(it)
+           }
+           }
     )
 }
 

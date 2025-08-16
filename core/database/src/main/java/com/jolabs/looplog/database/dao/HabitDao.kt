@@ -36,7 +36,6 @@ interface HabitDao {
     @Query("DELETE FROM RepeatTable WHERE habitId = :habitId AND dayOfWeek NOT IN (:newDays)")
     suspend fun deleteRemovedDays(habitId: Long, newDays: List<DayOfWeek>)
 
-
     @Transaction
     suspend fun upsertHabitWithDetails(
         habitTable: HabitTable,
@@ -80,8 +79,18 @@ interface HabitDao {
                     )
                 }
             }
+
+           if(timeOfDay !== null){
+               val daysToUpdate = daysOfWeek.filter { it in existingDays }
+               daysToUpdate.forEach { day ->
+                   updateHabitRepetitionTime(habitTable.id, day, timeOfDay)
+               }
+           }
         }
     }
+
+    @Query("UPDATE RepeatTable SET timeOfDay = :newTime WHERE habitId = :habitId AND dayOfWeek = :day")
+    suspend fun updateHabitRepetitionTime(habitId: Long, day: DayOfWeek, newTime: Long)
 
 
     @Transaction
@@ -103,6 +112,11 @@ interface HabitDao {
     @Transaction
     @Query("SELECT * FROM HabitTable")
     fun getAllHabits(): Flow<List<HabitWithDetails>>
+
+
+    @Transaction
+    @Query("SELECT * FROM HabitTable")
+    fun getAllHabitsDirect(): List<HabitWithDetails>
 
 
     @Transaction

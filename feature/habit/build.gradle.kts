@@ -77,6 +77,10 @@ dependencies {
     implementation(libs.glance.material)
     implementation(libs.androidx.compose.material3.windowSizeClass)
 
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    implementation(libs.androidx.hilt.common)
+
     implementation(project(":core:design-system"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))

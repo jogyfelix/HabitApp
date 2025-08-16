@@ -123,6 +123,12 @@ class CreateHabitViewModel @Inject constructor(
                     )
                 )
             }
+          if(_timeOfDay.value !== null){
+              _uiEvent.emit(UIEvent.SetupAlarm(_habitId.value,_habitName.value,_timeOfDay.value!!,
+                  _selectedDays.value))
+          }else {
+              _uiEvent.emit(UIEvent.RemoveAlarm(_habitId.value,_selectedDays.value))
+          }
             _uiEvent.emit(UIEvent.ShowMessage(UiMessage.StringRes(R.string.habit_saved)))
             _uiEvent.emit(UIEvent.NavigateUp)
         }
