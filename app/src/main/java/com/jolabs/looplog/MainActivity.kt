@@ -28,7 +28,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.jolabs.looplog.design_system.ui.theme.HabitAppTheme
-import com.jolabs.looplog.habit.alarmManager.RescheduleAlarmWorker
+import com.jolabs.looplog.habit.workers.RescheduleAlarmWorker
 import com.jolabs.looplog.habit.navigation.HabitCreateRoute
 import com.jolabs.looplog.habit.navigation.HabitHomeRoute
 import com.jolabs.looplog.habit.navigation.habitNavGraph
