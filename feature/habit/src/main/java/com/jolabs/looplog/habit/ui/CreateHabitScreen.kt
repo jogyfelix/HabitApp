@@ -72,6 +72,8 @@ import com.jolabs.looplog.ui.UIEvent
 import java.time.DayOfWeek
 import java.util.Calendar
 import androidx.core.net.toUri
+import androidx.glance.appwidget.updateAll
+import com.jolabs.looplog.habit.widgets.habitList.ToggleHabitWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -111,6 +113,7 @@ internal fun CreateHabitRoute(
                         is UiMessage.Text -> msg.message
                     }
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+                    ToggleHabitWidget().updateAll(context)
                 }
 
                 is UIEvent.SetupAlarm -> {

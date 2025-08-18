@@ -1,4 +1,4 @@
-package com.jolabs.looplog.habit.ui.widgets
+package com.jolabs.looplog.habit.workers
 
 import com.jolabs.looplog.data.repository.HabitRepository
 import dagger.hilt.EntryPoint
@@ -7,8 +7,6 @@ import dagger.hilt.components.SingletonComponent
 
 @EntryPoint
 @InstallIn(SingletonComponent::class)
-interface WidgetEntryPoint {
+interface WorkerEntryPoint {
     fun habitRepository(): HabitRepository
 }
-
-

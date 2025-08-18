@@ -5,12 +5,8 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.jolabs.looplog.data.repository.HabitRepository
 import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 
 @HiltWorker
 class RescheduleAlarmWorker(
@@ -22,19 +18,13 @@ class RescheduleAlarmWorker(
         private const val TAG = "RescheduleAlarmWorker"
     }
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface RescheduleAlarmWorkerEntryPoint {
-        fun habitRepository(): HabitRepository
-    }
-
     override suspend fun doWork(): Result {
         Log.d(TAG, "Starting alarm reschedule work")
 
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
                 applicationContext,
-                RescheduleAlarmWorkerEntryPoint::class.java
+                WorkerEntryPoint::class.java
             )
 
             val habitRepository = entryPoint.habitRepository()

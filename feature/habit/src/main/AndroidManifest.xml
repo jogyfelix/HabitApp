@@ -34,7 +34,7 @@
         </receiver>
 
         <receiver
-            android:name=".ui.widgets.addHabit.AddHabitWidgetReceiver"
+            android:name=".widgets.addHabit.AddHabitWidgetReceiver"
             android:label="@string/add_habit"
             android:exported="true">
             <intent-filter>
@@ -46,7 +46,7 @@
         </receiver>
 
         <receiver
-            android:name=".ui.widgets.habitList.ToggleHabitWidgetReceiver"
+            android:name=".widgets.habitList.ToggleHabitWidgetReceiver"
             android:label="@string/today_habits"
             android:exported="true">
             <intent-filter>

@@ -1,11 +1,11 @@
-package com.jolabs.looplog.habit.ui.widgets.habitList
+package com.jolabs.looplog.habit.widgets.habitList
 
 import android.content.Context
 import android.util.Log
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import com.jolabs.looplog.habit.ui.widgets.WidgetEntryPoint
+import com.jolabs.looplog.habit.widgets.WidgetEntryPoint
 import com.jolabs.looplog.model.HabitEntryModel
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.util.DateUtils

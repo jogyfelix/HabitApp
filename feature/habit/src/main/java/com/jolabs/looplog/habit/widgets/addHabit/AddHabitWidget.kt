@@ -1,4 +1,4 @@
-package com.jolabs.looplog.habit.ui.widgets.addHabit
+package com.jolabs.looplog.habit.widgets.addHabit
 
 import OpenCreateHabitAction
 import android.content.Context

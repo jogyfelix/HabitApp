@@ -1,4 +1,4 @@
-package com.jolabs.looplog.habit.ui.widgets.habitList
+package com.jolabs.looplog.habit.widgets.habitList
 
 import androidx.glance.action.ActionParameters
 

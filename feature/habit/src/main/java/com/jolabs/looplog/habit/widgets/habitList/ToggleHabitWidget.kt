@@ -1,4 +1,4 @@
-package com.jolabs.looplog.habit.ui.widgets.habitList
+package com.jolabs.looplog.habit.widgets.habitList
 
 import OpenCreateHabitAction
 import android.content.Context
@@ -34,7 +34,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.jolabs.looplog.design_system.ui.theme.MyWidgetColorScheme
 import com.jolabs.looplog.habit.R
-import com.jolabs.looplog.habit.ui.widgets.WidgetEntryPoint
+import com.jolabs.looplog.habit.widgets.WidgetEntryPoint
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.util.DateUtils.todayEpochDay

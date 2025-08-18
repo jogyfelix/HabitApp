@@ -53,6 +53,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jolabs.looplog.habit.ui.components.HabitListItem
@@ -60,6 +61,7 @@ import com.jolabs.looplog.design_system.ui.theme.HabitShapes
 import com.jolabs.looplog.habit.R
 import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
 import com.jolabs.looplog.habit.utils.PastDatesSelectableDates
+import com.jolabs.looplog.habit.widgets.habitList.ToggleHabitWidget
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.ui.UIEvent
@@ -96,6 +98,7 @@ internal fun HabitHomeRoute(
                         is UiMessage.Text -> msg.message
                     }
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+                    ToggleHabitWidget().updateAll(context)
                 }
 
                 is UIEvent.SetupAlarm -> TODO()

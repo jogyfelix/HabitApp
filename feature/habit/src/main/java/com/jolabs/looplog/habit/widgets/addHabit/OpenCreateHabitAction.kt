@@ -13,7 +13,7 @@ class OpenCreateHabitAction : ActionCallback {
     ) {
         val baseUri = "looplog://habit/create".toUri()
         val intent = Intent(Intent.ACTION_VIEW,baseUri).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            Intent.setFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         context.startActivity(intent)
     }
