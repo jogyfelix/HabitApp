@@ -72,6 +72,14 @@ class HabitRepositoryImpl @Inject constructor(
         emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
     }
 
+    override suspend fun getHabitByDateOnce(
+        dayOfWeek: DayOfWeek,
+        epochDate: Long
+    ): List<HabitBasic> {
+        return habitDao.getHabitByDateDirect(dayOfWeek, epochDate).map { it.toDomain() }
+    }
+
+
     // TODO make this atomic
     override suspend fun upsertHabitEntry(habitEntry: HabitEntryModel) {
         val habitEntry = habitEntry.toEntity()

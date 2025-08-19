@@ -61,12 +61,14 @@ import com.jolabs.looplog.design_system.ui.theme.HabitShapes
 import com.jolabs.looplog.habit.R
 import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
 import com.jolabs.looplog.habit.utils.PastDatesSelectableDates
+import com.jolabs.looplog.habit.utils.WidgetUpdateUtil
 import com.jolabs.looplog.habit.widgets.habitList.ToggleHabitWidget
 import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.ui.UIEvent
 import com.jolabs.looplog.util.DateUtils.formatEpochDay
 import com.jolabs.looplog.util.DateUtils.todayEpochDay
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -98,7 +100,7 @@ internal fun HabitHomeRoute(
                         is UiMessage.Text -> msg.message
                     }
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
-                    ToggleHabitWidget().updateAll(context)
+                    WidgetUpdateUtil.refreshHabitWidgets(context)
                 }
 
                 is UIEvent.SetupAlarm -> TODO()
@@ -119,7 +121,8 @@ internal fun HabitHomeRoute(
                habitAlarmManager.cancelAllHabitAlarms(it,daysOfWeek)
                habitHomeViewModel.deleteHabit(it)
            }
-           }
+           },
+        updateHabitWidget = {  WidgetUpdateUtil.refreshHabitWidgets(context) }
     )
 }
 
@@ -130,6 +133,7 @@ internal fun HabitHomeScreen(
     habitList: Resource<List<HabitBasic>> = Resource.Loading(),
     onCreatePress: (habitId: Long) -> Unit,
     deleteHabitPress: (habitId: Long) -> Unit,
+    updateHabitWidget:() -> Unit,
     selectedDate: Long = todayEpochDay(),
     onSelectedDateChange: (Long) -> Unit = {},
     onSelectedDayChange: (DayOfWeek) -> Unit,
@@ -327,6 +331,7 @@ internal fun HabitHomeScreen(
                                         selectedDate,
                                         newStatus
                                     )
+                                    updateHabitWidget()
                                 },
                                 onHabitPress = onCreatePress,
                                 deleteHabitPress = { id ->
@@ -380,6 +385,7 @@ internal fun HabitHomeScreenPreview() {
         onCreatePress = { },
         onSelectedDateChange = {},
         onSelectedDayChange = {},
-        deleteHabitPress = {}
+        deleteHabitPress = {},
+        updateHabitWidget = {}
     )
 }

@@ -20,6 +20,8 @@ interface HabitRepository {
     suspend fun getHabitById(id : Long) : CreateHabit?
     fun getHabitByDate(dayOfWeek: DayOfWeek,epochDate : Long) : Flow<Resource<List<HabitBasic>>>
 
+    suspend fun getHabitByDateOnce(dayOfWeek: DayOfWeek, epochDate: Long): List<HabitBasic>
+
     suspend fun upsertHabitEntry(habitEntry: HabitEntryModel)
 }
 

@@ -125,4 +125,18 @@ interface HabitDao {
         dayOfWeek: DayOfWeek,
         selectedDate: Long
     ): Flow<List<HabitWithDetails>>
+
+    @Transaction
+    @Query("""
+  SELECT * FROM HabitTable h 
+  INNER JOIN RepeatTable r ON h.id = r.habitId 
+  LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate 
+  LEFT JOIN StreakTable s ON h.id = s.habitId 
+  WHERE r.dayOfWeek = :dayOfWeek
+""")
+    suspend fun getHabitByDateDirect(
+        dayOfWeek: DayOfWeek,
+        selectedDate: Long
+    ): List<HabitWithDetails>
 }
+

@@ -34,39 +34,81 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.jolabs.looplog.design_system.ui.theme.MyWidgetColorScheme
 import com.jolabs.looplog.habit.R
-import com.jolabs.looplog.habit.widgets.WidgetEntryPoint
-import com.jolabs.looplog.model.HabitBasic
 import com.jolabs.looplog.model.HabitStatus
 import com.jolabs.looplog.util.DateUtils.todayEpochDay
-import Resource
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.ColorFilter
+import androidx.glance.action.actionStartActivity
+import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.lazy.items
+import androidx.glance.currentState
 import androidx.glance.layout.Box
+import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.jolabs.looplog.habit.widgets.WidgetEntryPoint
 import java.time.LocalDate
+import android.content.Intent
+import androidx.core.net.toUri
+import androidx.glance.appwidget.action.actionStartActivity
 
 
 class ToggleHabitWidget : GlanceAppWidget() {
+
+    override val stateDefinition = PreferencesGlanceStateDefinition
+    val isLoadingKey = booleanPreferencesKey("is_loading")
+
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId
     ) {
-        // Fetch today's habits once for the current render
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            WidgetEntryPoint::class.java
-        )
-        val repository = entryPoint.habitRepository()
-        val todayEpoch = todayEpochDay()
-        val today = LocalDate.now()
+        // Preload state once if empty, before entering composition (per Glance docs)
+        val prefsSnapshot = getAppWidgetState(context, PreferencesGlanceStateDefinition, id)
+        val existingJson = prefsSnapshot[stringPreferencesKey("habits_json")] ?: ""
+        val isLoading = prefsSnapshot[isLoadingKey] ?: false
+
+        if (existingJson.isBlank() && !isLoading) {
+
+            updateAppWidgetState(context, id) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[isLoadingKey] = true
+                }
+            }
+
+            try {
+                val entryPoint = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    WidgetEntryPoint::class.java
+                )
+                val repo = entryPoint.habitRepository()
+                val today = LocalDate.now()
+                val list = repo.getHabitByDateOnce(today.dayOfWeek, todayEpochDay())
+                val json = encodeHabits(list.toDto())
+
+                updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
+                    prefs.toMutablePreferences().apply {
+                        this[stringPreferencesKey("habits_json")] = json
+                        this[isLoadingKey] = false
+                    }
+                }
+            } catch (_: Exception) {
+                updateAppWidgetState(context, id) { prefs ->
+                    prefs.toMutablePreferences().apply {
+                        this[isLoadingKey] = false
+                    }
+                }
+            }
+        }
+        val todayString = context.getString(R.string.today)
+        val addHabitString = context.getString(R.string.add_habit)
+        val noHabitString = context.getString(R.string.no_habits_today_short)
 
         provideContent {
-
-            val resource by repository.getHabitByDate(today.dayOfWeek, todayEpoch)
-                .collectAsState(initial = Resource.Loading())
-            val habits: List<HabitBasic> = resource.data ?: emptyList()
+            val prefs = currentState<Preferences>()
+            val json = prefs[stringPreferencesKey("habits_json")] ?: "[]"
+            val isLoadingState = prefs[isLoadingKey] ?: false
 
             GlanceTheme(
                 colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -75,78 +117,108 @@ class ToggleHabitWidget : GlanceAppWidget() {
                     MyWidgetColorScheme.colors
                 }
             ) {
-
-                Column(
-                    modifier = GlanceModifier
-                        .fillMaxSize()
-                        .background(GlanceTheme.colors.background)
-                        .padding(8.dp)
-                        , verticalAlignment = Alignment.Top
-                ) {
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.Start,
-                        verticalAlignment = Alignment.CenterVertically
+                if (isLoadingState) {
+                    Box(
+                        modifier = GlanceModifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-
+                        CircularProgressIndicator()
+                    }
+                } else if (json.isBlank()) {
+                    Box(
+                        modifier = GlanceModifier.fillMaxSize()
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
-                            stringResource(R.string.today), style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = GlanceTheme.colors.onBackground
+                            noHabitString,
+                            style = TextStyle(
+                                color = GlanceTheme.colors.outline
                             )
-                        )
-
-                        Spacer(GlanceModifier.defaultWeight())
-                        Image(
-                            provider = ImageProvider(R.drawable.add),
-                            contentDescription = stringResource(R.string.add_habit),
-                            colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground),
-                            modifier = GlanceModifier
-                                .size(16.dp)
-                                .clickable(
-                                    actionRunCallback<OpenCreateHabitAction>()
-                                )
                         )
                     }
+                } else {
+                    val habits = decodeHabits(json).toDomain()
 
-                    Spacer(GlanceModifier.height(8.dp))
-
-                    if (habits.isEmpty()) {
-                        Box(
-                            modifier = GlanceModifier.fillMaxSize()
+                    Column(
+                        modifier = GlanceModifier
+                            .fillMaxSize()
+                            .background(GlanceTheme.colors.background)
+                            .padding(8.dp)
+                        , verticalAlignment = Alignment.Top
+                    ) {
+                        Row(
+                            modifier = GlanceModifier.fillMaxWidth()
                                 .padding(8.dp),
-                            contentAlignment = Alignment.Center
+                            horizontalAlignment = Alignment.Start,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+
                             Text(
-                                stringResource(R.string.no_habits_today_short),
-                                style = TextStyle(
-                                    color = GlanceTheme.colors.outline
-                                )
+                                todayString, style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = GlanceTheme.colors.onBackground,
+                                ),
+                                modifier = GlanceModifier.clickable {
+                                    val baseUri = "looplog://habit/".toUri()
+                                    val intent = Intent(Intent.ACTION_VIEW,baseUri).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            )
+
+                            Spacer(GlanceModifier.defaultWeight())
+                            Image(
+                                provider = ImageProvider(R.drawable.add),
+                                contentDescription = addHabitString,
+                                colorFilter = ColorFilter.tint(GlanceTheme.colors.onBackground),
+                                modifier = GlanceModifier
+                                    .size(16.dp)
+                                    .clickable(
+                                        actionRunCallback<OpenCreateHabitAction>()
+                                    )
                             )
                         }
-                    } else {
-                        LazyColumn {
-                            items(habits, itemId = { it.id }) { item ->
-                                Row(
-                                    modifier = GlanceModifier.fillMaxWidth()
-                                ) {
-                                    CheckBox(
-                                        checked = item.habitState == HabitStatus.COMPLETED,
-                                        onCheckedChange = actionRunCallback<OpenToggleHabitAction>(
-                                            actionParametersOf(
-                                                HabitIdKey to item.id,
-                                                EpochDateKey to todayEpoch,
-                                                StatusKey to (if (item.habitState == HabitStatus.COMPLETED) HabitStatus.COMPLETED.name else HabitStatus.NONE.name),
-                                            )
-                                        ),
-                                        text = item.name,
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = MyWidgetColorScheme.colors.primary,
-                                            uncheckedColor = MyWidgetColorScheme.colors.outline,
-                                        )
+
+                        Spacer(GlanceModifier.height(8.dp))
+
+                        if (habits.isEmpty()) {
+                            Box(
+                                modifier = GlanceModifier.fillMaxSize()
+                                    .padding(8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    noHabitString,
+                                    style = TextStyle(
+                                        color = GlanceTheme.colors.outline
                                     )
+                                )
+                            }
+                        } else {
+                            LazyColumn {
+                                items(habits, itemId = { it.id }) { item ->
+                                    Row(
+                                        modifier = GlanceModifier.fillMaxWidth()
+                                    ) {
+                                        CheckBox(
+                                            checked = item.habitState == HabitStatus.COMPLETED,
+                                            onCheckedChange = actionRunCallback<OpenToggleHabitAction>(
+                                                actionParametersOf(
+                                                    HabitIdKey to item.id,
+                                                    EpochDateKey to todayEpochDay(),
+                                                    StatusKey to (if (item.habitState == HabitStatus.COMPLETED) HabitStatus.COMPLETED.name else HabitStatus.NONE.name),
+                                                )
+                                            ),
+                                            text = item.name,
+                                            colors = CheckboxDefaults.colors(
+                                                checkedColor = MyWidgetColorScheme.colors.primary,
+                                                uncheckedColor = MyWidgetColorScheme.colors.outline,
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         }
