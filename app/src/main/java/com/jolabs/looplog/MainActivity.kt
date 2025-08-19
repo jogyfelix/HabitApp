@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
         appUpdateManager.registerListener(installListener)
         checkForUpdates()
         createNotificationChannel()
-
         setContent {
             HabitAppTheme {
                 val navController = rememberNavController()
@@ -155,16 +154,16 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-                UpdateAvailability.UPDATE_AVAILABLE -> {
-                    // Optional: resume flexible flow if allowed
-                    if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                        appUpdateManager.startUpdateFlowForResult(
-                            info,
-                            updateLauncher,
-                            AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-                        )
-                    }
-                }
+//                UpdateAvailability.UPDATE_AVAILABLE -> {
+//                    // Optional: resume flexible flow if allowed
+//                    if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+//                        appUpdateManager.startUpdateFlowForResult(
+//                            info,
+//                            updateLauncher,
+//                            AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+//                        )
+//                    }
+//                }
                 else -> {
                     // If update already downloaded, complete it
                     if (info.installStatus() == InstallStatus.DOWNLOADED) {

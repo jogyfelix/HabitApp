@@ -84,7 +84,7 @@ internal fun HabitListItem(
         }
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(80.dp)
                     .clip(shape)
                     .background(color),
                 contentAlignment = Alignment.Center
