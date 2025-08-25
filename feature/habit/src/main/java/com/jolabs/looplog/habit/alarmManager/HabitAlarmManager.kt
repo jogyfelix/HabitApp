@@ -64,10 +64,10 @@ class HabitAlarmManager(private val context: Context) {
             val nextAlarmTime = getNextAlarmTime(timeOfDayMillis, listOf(day))
 
             // Create a unique PendingIntent for each alarm
-            val uniqueHabitId = habitId.toInt() + day.ordinal // Use a unique ID for each day
+            val uniqueRequestId = (habitId.toInt() * 100) + day.ordinal
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                uniqueHabitId,
+                uniqueRequestId,
                 Intent(context, HabitAlarmReceiver::class.java).apply {
                     putExtra("habitId", habitId)
                     putExtra("habitName", habitName)

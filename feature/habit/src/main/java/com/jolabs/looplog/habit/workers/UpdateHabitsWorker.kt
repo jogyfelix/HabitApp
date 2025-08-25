@@ -9,40 +9,24 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.jolabs.looplog.habit.utils.WidgetUpdateUtil
 import com.jolabs.looplog.habit.widgets.habitList.ToggleHabitWidget
 import com.jolabs.looplog.habit.widgets.habitList.encodeHabits
 import com.jolabs.looplog.habit.widgets.habitList.toDto
 import com.jolabs.looplog.util.DateUtils.todayEpochDay
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.EntryPointAccessors
 import java.time.LocalDate
 
 @HiltWorker
-class UpdateHabitsWorker(
-    appContext: Context,
-    params: WorkerParameters
+class UpdateHabitsWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         return try {
-            val entryPoint = EntryPointAccessors.fromApplication(
-                applicationContext,
-                WorkerEntryPoint::class.java
-            )
-            val repo = entryPoint.habitRepository()
-
-            val today = LocalDate.now()
-            val list = repo.getHabitByDateOnce(today.dayOfWeek, todayEpochDay())
-            val json = encodeHabits(list.toDto())
-
-            val manager = GlanceAppWidgetManager(applicationContext)
-            val ids = manager.getGlanceIds(ToggleHabitWidget::class.java)
-            ids.forEach { id ->
-                updateAppWidgetState(applicationContext, PreferencesGlanceStateDefinition, id) { prefs ->
-                    val editable = prefs.toMutablePreferences()
-                    editable[stringPreferencesKey("habits_json")] = json
-                    editable
-                }
-            }
-            ToggleHabitWidget().updateAll(applicationContext)
+            WidgetUpdateUtil.refreshHabitWidgets(applicationContext)
             Result.success()
         } catch (e: Exception) {
             Result.failure()

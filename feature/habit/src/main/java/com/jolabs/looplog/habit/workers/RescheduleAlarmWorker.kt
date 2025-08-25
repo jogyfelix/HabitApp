@@ -6,12 +6,14 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.jolabs.looplog.habit.alarmManager.HabitAlarmManager
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.EntryPointAccessors
 
 @HiltWorker
-class RescheduleAlarmWorker(
-    appContext: Context,
-    params: WorkerParameters
+class RescheduleAlarmWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
