@@ -7,6 +7,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.jolabs.looplog.habit.workers.UpdateHabitsWorker
+import com.jolabs.looplog.habit.utils.WidgetUpdateUtil
 import dagger.hilt.android.HiltAndroidApp
 import java.time.Duration
 import java.time.LocalTime
@@ -29,6 +30,7 @@ class HabitApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         scheduleDailyWidgetRefresh()
+        WidgetUpdateUtil.refreshHabitWidgets(applicationContext)
     }
 
     private fun scheduleDailyWidgetRefresh() {
@@ -46,5 +48,6 @@ class HabitApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
+
     }
 }

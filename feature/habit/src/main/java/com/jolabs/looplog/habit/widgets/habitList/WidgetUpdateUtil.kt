@@ -2,6 +2,7 @@ package com.jolabs.looplog.habit.utils
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -43,6 +44,7 @@ object WidgetUpdateUtil {
                         editable
                     }
                 }
+
 
                 ToggleHabitWidget().updateAll(context)
 

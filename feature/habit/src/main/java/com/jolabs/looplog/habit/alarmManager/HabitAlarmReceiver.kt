@@ -32,7 +32,7 @@ class HabitAlarmReceiver: BroadcastReceiver() {
 
 
         val notification = NotificationCompat.Builder(context!!, "looplog_alarm_channel")
-            .setSmallIcon(R.drawable.data_empty)
+            .setSmallIcon(R.drawable.add_task)
             .setContentTitle("Habit Reminder")
             .setContentText("It's time for $habitName")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -46,7 +46,7 @@ class HabitAlarmReceiver: BroadcastReceiver() {
         val summaryNotification = NotificationCompat.Builder(context, "looplog_alarm_channel")
             .setContentTitle("Multiple Habit Reminders")
             .setContentText("You have new habits to log.")
-            .setSmallIcon(R.drawable.data_empty)
+            .setSmallIcon(R.drawable.add_task)
             .setGroup(GROUP_KEY_HABIT_REMINDERS)
             .setGroupSummary(true) // Step 3: Mark this as the summary notification
             .build()

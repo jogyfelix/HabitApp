@@ -3,7 +3,6 @@ package com.jolabs.looplog
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,9 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -28,7 +24,6 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.jolabs.looplog.design_system.ui.theme.HabitAppTheme
-import com.jolabs.looplog.habit.workers.RescheduleAlarmWorker
 import com.jolabs.looplog.habit.navigation.HabitCreateRoute
 import com.jolabs.looplog.habit.navigation.HabitHomeRoute
 import com.jolabs.looplog.habit.navigation.habitNavGraph
@@ -121,24 +116,6 @@ class MainActivity : ComponentActivity() {
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
-
-    // Test method to verify WorkManager functionality
-    private fun testWorkManager() {
-        try {
-            android.util.Log.d("MainActivity", "Testing WorkManager...")
-            val workRequest = OneTimeWorkRequestBuilder<RescheduleAlarmWorker>().build()
-            WorkManager.getInstance(this).enqueueUniqueWork(
-                "test_reschedule_alarms",
-                ExistingWorkPolicy.REPLACE,
-                workRequest
-            )
-            android.util.Log.d("MainActivity", "WorkManager test successful - work enqueued")
-        } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "WorkManager test failed", e)
-            e.printStackTrace()
-        }
-    }
-
 
     override fun onResume() {
         super.onResume()

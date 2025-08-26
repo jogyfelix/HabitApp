@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -28,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,21 +54,17 @@ class AlarmFullScreenActivity : ComponentActivity() {
                         onDismiss = {
                             val notificationManager =
                                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                            notificationManager.cancel(1001) // cancel by same ID used above
+                            notificationManager.cancel(1001)
                             finish()
                         },
                         onComplete = {
-                            // Define the package name of the module containing MainActivity
                             val packageName = "com.jolabs.looplog"
-// Define the fully qualified class name of MainActivity
                             val className = "com.jolabs.looplog.MainActivity"
 
                             val intent = Intent().apply {
                                 component = ComponentName(packageName, className)
                                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             }
-
-// Check if the activity is available before starting
                             if (intent.resolveActivity(packageManager) != null) {
                                 startActivity(intent)
                             } else {
@@ -95,7 +90,7 @@ fun AlarmScreen(onDismiss: () -> Unit,onComplete:() -> Unit, habitName: String) 
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp),verticalArrangement = Arrangement.spacedBy(24.dp),horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     painter = painterResource(id = R.drawable.alarm_24px),
                     contentDescription = null,
@@ -106,9 +101,10 @@ fun AlarmScreen(onDismiss: () -> Unit,onComplete:() -> Unit, habitName: String) 
                     text = "It's time for $habitName",
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 28.sp,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 30.sp
                 )
-                Spacer(Modifier.height(24.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = onDismiss) {
                         Text("Dismiss")
