@@ -15,7 +15,7 @@ android {
         applicationId = "com.jolabs.looplog"
         minSdk = 29
         targetSdk = 35
-        versionCode = 4
+        versionCode = 5
         versionName = "0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
