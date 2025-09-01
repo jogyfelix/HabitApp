@@ -10,19 +10,6 @@
 
 
     <application>
-        <activity
-            android:name=".ui.alarmUI.AlarmFullScreenActivity"
-            android:exported="true"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"
-            android:excludeFromRecents="true">
-
-            <intent-filter>
-                <action android:name="com.yourapp.ALARM_SCREEN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <receiver
             android:name=".alarmManager.BootReceiver"
             android:enabled="true"

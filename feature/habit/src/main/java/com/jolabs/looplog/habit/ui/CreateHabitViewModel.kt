@@ -111,7 +111,7 @@ class CreateHabitViewModel @Inject constructor(
             }
 
             withContext(Dispatchers.IO) {
-                createHabitUseCase(
+                val updatedHabitId = createHabitUseCase(
                     habit = CreateHabit(
                         id = _habitId.value,
                         name = _habitName.value,
@@ -122,6 +122,9 @@ class CreateHabitViewModel @Inject constructor(
                         updatedAt = System.currentTimeMillis(),
                     )
                 )
+               if(updatedHabitId != -1L) {
+                   _habitId.value = updatedHabitId
+               }
             }
           if(_timeOfDay.value !== null){
               _uiEvent.emit(UIEvent.SetupAlarm(_habitId.value,_habitName.value,_timeOfDay.value!!,

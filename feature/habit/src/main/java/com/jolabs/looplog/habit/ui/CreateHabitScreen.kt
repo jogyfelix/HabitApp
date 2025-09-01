@@ -196,7 +196,7 @@ internal fun CreateHabitScreen(
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()){
-        // Permission was denied, show a Snackbar with an action
+
         if(!it){
             scope.launch {
                 val result = snackbarHostState.showSnackbar(
@@ -219,6 +219,11 @@ internal fun CreateHabitScreen(
                     }
                 }
             }
+        }else {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = "package:com.jolabs.looplog".toUri()
+            }
+            context.startActivity( intent, null)
         }
     }
 

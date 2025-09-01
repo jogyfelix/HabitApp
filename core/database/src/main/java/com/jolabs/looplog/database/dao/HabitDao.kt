@@ -41,7 +41,7 @@ interface HabitDao {
         habitTable: HabitTable,
         daysOfWeek: List<DayOfWeek>,
         timeOfDay: Long?
-    ) {
+    ) : Long {
         val habitId = addHabit(habitTable)
         if (habitTable.id == 0L) {
             upsertHabitStreak(
@@ -87,6 +87,7 @@ interface HabitDao {
                }
            }
         }
+        return habitId
     }
 
     @Query("UPDATE RepeatTable SET timeOfDay = :newTime WHERE habitId = :habitId AND dayOfWeek = :day")

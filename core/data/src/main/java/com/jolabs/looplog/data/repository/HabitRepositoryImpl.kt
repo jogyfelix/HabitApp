@@ -25,12 +25,13 @@ class HabitRepositoryImpl @Inject constructor(
     private val habitDao: HabitDao
 ) : HabitRepository {
 
-    override suspend fun createHabit(habit: CreateHabit) {
-        habitDao.upsertHabitWithDetails(habit.toHabitTableEntity(), daysOfWeek = habit.daysOfWeek, timeOfDay = habit.timeOfDay)
+    override suspend fun createHabit(habit: CreateHabit) : Long {
+        val habitId = habitDao.upsertHabitWithDetails(habit.toHabitTableEntity(), daysOfWeek = habit.daysOfWeek, timeOfDay = habit.timeOfDay)
         if(habit.id > 0L){
         val(currentStreak,longestStreak)=calculateStreak(habit.id)
         habitDao.upsertHabitStreak(StreakTable(habit.id,currentStreak,longestStreak))
     }
+        return habitId
     }
 
     override suspend fun deleteHabit(habitId: Long) : Int {

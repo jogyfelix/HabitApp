@@ -7,8 +7,7 @@ import javax.inject.Inject
 class CreateHabitUseCase @Inject constructor(
     private val habitRepository: HabitRepository
 ) {
-    suspend operator fun invoke (habit: CreateHabit) {
-        habitRepository.createHabit(habit)
-
+    suspend operator fun invoke (habit: CreateHabit) : Long {
+        return habitRepository.createHabit(habit)
     }
 }

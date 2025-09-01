@@ -10,8 +10,6 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import java.time.DayOfWeek
 import java.time.Instant
-import java.time.LocalDateTime.now
-import java.time.LocalDateTime.of
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -42,12 +40,10 @@ class HabitAlarmManager(private val context: Context) {
 
         var nextAlarmDateTime = now.with(alarmTime)
 
-        // Check if the alarm time today has already passed.
         if (nextAlarmDateTime.isBefore(now)) {
             nextAlarmDateTime = nextAlarmDateTime.plusDays(1)
         }
 
-        // Find the next day of the week in the list.
         while (!dayOfWeek.contains(nextAlarmDateTime.dayOfWeek)) {
             nextAlarmDateTime = nextAlarmDateTime.plusDays(1)
         }
@@ -58,12 +54,9 @@ class HabitAlarmManager(private val context: Context) {
     fun scheduleHabitAlarm(habitId: Long,habitName:String, timeOfDayMillis: Long, dayOfWeek: List<DayOfWeek>) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // Iterate through each day in the list
-        dayOfWeek.forEach { day ->
-            // Calculate the next alarm time for this specific day
-            val nextAlarmTime = getNextAlarmTime(timeOfDayMillis, listOf(day))
 
-            // Create a unique PendingIntent for each alarm
+        dayOfWeek.forEach { day ->
+            val nextAlarmTime = getNextAlarmTime(timeOfDayMillis, listOf(day))
             val uniqueRequestId = (habitId.toInt() * 100) + day.ordinal
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -71,11 +64,12 @@ class HabitAlarmManager(private val context: Context) {
                 Intent(context, HabitAlarmReceiver::class.java).apply {
                     putExtra("habitId", habitId)
                     putExtra("habitName", habitName)
+                    putExtra("timeOfDay",timeOfDayMillis)
+                    putExtra("dayOfWeek",day.toString())
                 },
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            // Schedule the alarm
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 nextAlarmTime,
@@ -84,23 +78,41 @@ class HabitAlarmManager(private val context: Context) {
         }
     }
 
+    fun scheduleHabitRepeatAlarm(habitId: Long,habitName:String, timeOfDayMillis: Long, dayOfWeek: DayOfWeek) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            val uniqueRequestId = (habitId.toInt() * 100) + dayOfWeek.ordinal
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                uniqueRequestId,
+                Intent(context, HabitAlarmReceiver::class.java).apply {
+                    putExtra("habitId", habitId)
+                    putExtra("habitName", habitName)
+                    putExtra("timeOfDay",timeOfDayMillis)
+                    putExtra("dayOfWeek",dayOfWeek.toString())
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                timeOfDayMillis,
+                pendingIntent
+            )
+
+    }
+
 
     fun cancelAllHabitAlarms(habitId: Long, dayOfWeek: List<DayOfWeek>) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         dayOfWeek.forEach { day ->
-            // Create the unique request code for this day
-            val uniqueHabitId = habitId.toInt() + day.ordinal
-
-            // Create a PendingIntent that matches the one used for scheduling
+            val uniqueRequestId = (habitId.toInt() * 100) + day.ordinal
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                uniqueHabitId, // Use the unique ID here
+                uniqueRequestId, // Use the unique ID here
                 Intent(context, HabitAlarmReceiver::class.java),
                 PendingIntent.FLAG_IMMUTABLE
             )
-
-            // Cancel the specific alarm for this day
             alarmManager.cancel(pendingIntent)
         }
     }

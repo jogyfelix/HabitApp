@@ -3,63 +3,81 @@ package com.jolabs.looplog.habit.alarmManager
 import android.Manifest
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jolabs.looplog.habit.R
-import com.jolabs.looplog.habit.ui.alarmUI.AlarmFullScreenActivity
+import java.time.DayOfWeek
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 const val GROUP_KEY_HABIT_REMINDERS = "com.jolabs.looplog.habit_reminders"
 class HabitAlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
-        val habitId = intent?.getLongExtra("habitId", 0L)?.toInt() ?: return
-        val habitName = intent.getStringExtra("habitName") ?: return
+        val habitId = intent?.getLongExtra("habitId", 0L) ?: 0L
+        val habitName = intent?.getStringExtra("habitName") ?: return
+        val timeOfDay = intent.getLongExtra("timeOfDay", 0L)
+        val dayOfWeek = intent.getStringExtra("dayOfWeek") ?: return
 
-
-        val fullScreenIntent = Intent(context, AlarmFullScreenActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra("habitId", habitId)
-            putExtra("habitName", habitName)
+        val notificationIntent = Intent().apply {
+            component = ComponentName("com.jolabs.looplog", "com.jolabs.looplog.MainActivity")
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
-        val fullScreenPendingIntent = PendingIntent.getActivity(
-            context, habitId, fullScreenIntent,
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            notificationIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+            val notification = NotificationCompat.Builder(context!!, "looplog_alarm_channel")
+                .setSmallIcon(R.drawable.add_task)
+                .setContentTitle("Habit Reminder")
+                .setContentText("It's time for $habitName")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .setGroup(GROUP_KEY_HABIT_REMINDERS)
+                .build()
 
-        val notification = NotificationCompat.Builder(context!!, "looplog_alarm_channel")
-            .setSmallIcon(R.drawable.add_task)
-            .setContentTitle("Habit Reminder")
-            .setContentText("It's time for $habitName")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
-            .setAutoCancel(true)
-            .setGroup(GROUP_KEY_HABIT_REMINDERS)
-            .build()
 
-        // Create the summary notification. It's built with the same group key and style.
-        val summaryNotification = NotificationCompat.Builder(context, "looplog_alarm_channel")
-            .setContentTitle("Multiple Habit Reminders")
-            .setContentText("You have new habits to log.")
-            .setSmallIcon(R.drawable.add_task)
-            .setGroup(GROUP_KEY_HABIT_REMINDERS)
-            .setGroupSummary(true) // Step 3: Mark this as the summary notification
-            .build()
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                with(NotificationManagerCompat.from(context)) {
+                    notify(habitId.toInt(), notification)
+                }
+            }
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            with(NotificationManagerCompat.from(context)) {
-                notify(habitId, notification)
-                notify(0, summaryNotification)
+        if (timeOfDay > 0 && dayOfWeek.isNotEmpty()) {
+            try {
+                val currentDateTime = ZonedDateTime.ofInstant(
+                    java.time.Instant.ofEpochMilli(timeOfDay),
+                    ZoneId.systemDefault()
+                )
+                val sevenDaysFromNow = currentDateTime.plusDays(7).toInstant().toEpochMilli()
+
+                val habitAlarmManager = HabitAlarmManager(context)
+
+                habitAlarmManager.scheduleHabitRepeatAlarm(
+                    habitId = habitId,
+                    habitName = habitName,
+                    timeOfDayMillis = sevenDaysFromNow,
+                    dayOfWeek = DayOfWeek.valueOf(dayOfWeek)
+                )
+            } catch (e: Exception) {
+                Log.e("AlarmReceiver", "Failed to reschedule alarm", e)
             }
         } else {
-            // Permission not granted - maybe log or schedule a retry
+            Log.e("AlarmReceiver", "Invalid timeOfDay: $timeOfDay or dayOfWeek: $dayOfWeek")
         }
     }
 }

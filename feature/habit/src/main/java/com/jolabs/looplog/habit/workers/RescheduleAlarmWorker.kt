@@ -21,8 +21,6 @@ class RescheduleAlarmWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Starting alarm reschedule work")
-
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
                 applicationContext,
@@ -34,36 +32,24 @@ class RescheduleAlarmWorker @AssistedInject constructor(
 
             val habitsResult = habitRepository.getAllHabitsDirect()
 
-
-            Log.d(TAG, "Found ${habitsResult.size} habits to reschedule")
-
             habitsResult.forEach { habit ->
                 try {
-                    // Wait for actual repeat data, not loading state
                     val habitRepeatList = habitRepository.getRepeatDaysFromHabit(habit.id)
                     val firstRepeat = habitRepeatList.first()
 
                     if (firstRepeat.timeOfDay != null) {
-                        Log.d(TAG, "Rescheduling alarm for habit: ${habit.name} at ${firstRepeat.timeOfDay}")
-
                         habitAlarmManager.scheduleHabitAlarm(
                             habit.id,
                             habit.name,
                             firstRepeat.timeOfDay!!,
                             habitRepeatList.map { it.dayOfWeek }
                         )
-
-                        Log.d(TAG, "Successfully rescheduled alarm for habit: ${habit.name}")
-                    } else {
-                        Log.d(TAG, "Skipping habit ${habit.name} - no time of day set")
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to reschedule alarm for habit: ${habit.name}", e)
                 }
             }
-
-            Log.d(TAG, "Alarm reschedule work completed successfully")
-            Result.success()
+        Result.success()
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to reschedule alarms", e)

@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
         appUpdateManager = AppUpdateManagerFactory.create(this)
         appUpdateManager.registerListener(installListener)
         checkForUpdates()
+        clearAllNotifications()
         createNotificationChannel()
         setContent {
             HabitAppTheme {
@@ -117,6 +118,11 @@ class MainActivity : ComponentActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
+    private fun clearAllNotifications() {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancelAll()
+    }
+
     override fun onResume() {
         super.onResume()
         appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
@@ -131,18 +137,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-//                UpdateAvailability.UPDATE_AVAILABLE -> {
-//                    // Optional: resume flexible flow if allowed
-//                    if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-//                        appUpdateManager.startUpdateFlowForResult(
-//                            info,
-//                            updateLauncher,
-//                            AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-//                        )
-//                    }
-//                }
                 else -> {
-                    // If update already downloaded, complete it
                     if (info.installStatus() == InstallStatus.DOWNLOADED) {
                         showUpdateDialog.value = true
                     }

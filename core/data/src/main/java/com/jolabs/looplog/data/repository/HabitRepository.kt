@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 
 interface HabitRepository {
-    suspend fun createHabit(habit: CreateHabit)
+    suspend fun createHabit(habit: CreateHabit) : Long
 
     suspend fun deleteHabit(habitId: Long) : Int
 
