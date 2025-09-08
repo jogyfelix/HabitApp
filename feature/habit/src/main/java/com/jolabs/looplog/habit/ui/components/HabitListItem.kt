@@ -63,7 +63,7 @@ internal fun HabitListItem(
                 Text(
                     name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+//                    color = MaterialTheme.colorScheme.primary
                 )
                 if(description.isNotEmpty()){
                     Text(
@@ -71,13 +71,13 @@ internal fun HabitListItem(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
+//                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
                 Text(
                     stringResource(R.string.longest_streak, longestStreak),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.outline
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))

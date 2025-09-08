@@ -121,7 +121,7 @@ interface HabitDao {
 
 
     @Transaction
-    @Query("SELECT * FROM HabitTable h INNER JOIN RepeatTable r ON h.id = r.habitId LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate LEFT JOIN StreakTable s ON h.id = s.habitId WHERE r.dayOfWeek = :dayOfWeek")
+    @Query("SELECT * FROM HabitTable h INNER JOIN RepeatTable r ON h.id = r.habitId LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate LEFT JOIN StreakTable s ON h.id = s.habitId WHERE r.dayOfWeek = :dayOfWeek ORDER BY r.timeOfDay ASC")
     fun getHabitByDate(
         dayOfWeek: DayOfWeek,
         selectedDate: Long
@@ -134,6 +134,7 @@ interface HabitDao {
   LEFT JOIN HabitEntryTable e ON h.id = e.habitId AND e.date = :selectedDate 
   LEFT JOIN StreakTable s ON h.id = s.habitId 
   WHERE r.dayOfWeek = :dayOfWeek
+  ORDER BY r.timeOfDay ASC
 """)
     suspend fun getHabitByDateDirect(
         dayOfWeek: DayOfWeek,

@@ -128,7 +128,6 @@ class MainActivity : ComponentActivity() {
         appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
             when (info.updateAvailability()) {
                 UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS -> {
-                    // Resume immediate update flow
                     if (info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
                         appUpdateManager.startUpdateFlowForResult(
                             info,

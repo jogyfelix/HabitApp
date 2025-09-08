@@ -38,7 +38,7 @@ class HabitAlarmReceiver: BroadcastReceiver() {
         )
 
             val notification = NotificationCompat.Builder(context!!, "looplog_alarm_channel")
-                .setSmallIcon(R.drawable.add_task)
+                .setSmallIcon(R.drawable.outline_check_24)
                 .setContentTitle("Habit Reminder")
                 .setContentText("It's time for $habitName")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

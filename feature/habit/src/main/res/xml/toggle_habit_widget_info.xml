@@ -6,5 +6,5 @@
     android:description="@string/widget_add_habit_description"
     android:widgetCategory="home_screen"
     android:initialLayout="@layout/add_habit_widget_placeholder"
-    android:previewImage="@drawable/add_widget_preview"
+    android:previewImage="@drawable/toggle_habit_preview"
     />

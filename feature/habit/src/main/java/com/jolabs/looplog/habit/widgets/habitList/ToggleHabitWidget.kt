@@ -51,8 +51,10 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.jolabs.looplog.habit.widgets.WidgetEntryPoint
 import java.time.LocalDate
 import android.content.Intent
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.core.net.toUri
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.cornerRadius
 
 
 class ToggleHabitWidget : GlanceAppWidget() {
@@ -143,7 +145,8 @@ class ToggleHabitWidget : GlanceAppWidget() {
                     Column(
                         modifier = GlanceModifier
                             .fillMaxSize()
-                            .background(GlanceTheme.colors.background)
+                            .cornerRadius(8.dp)
+                            .background( GlanceTheme.colors.background)
                             .padding(8.dp)
                         , verticalAlignment = Alignment.Top
                     ) {
