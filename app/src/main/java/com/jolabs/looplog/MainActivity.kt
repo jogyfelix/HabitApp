@@ -126,21 +126,18 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
-            when (info.updateAvailability()) {
-                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS -> {
-                    if (info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                        appUpdateManager.startUpdateFlowForResult(
-                            info,
-                            updateLauncher,
-                            AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                        )
-                    }
-                }
-                else -> {
-                    if (info.installStatus() == InstallStatus.DOWNLOADED) {
-                        showUpdateDialog.value = true
-                    }
-                }
+
+            if (info.installStatus() == InstallStatus.DOWNLOADED) {
+                showUpdateDialog.value = true
+                return@addOnSuccessListener
+            }
+
+            if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                appUpdateManager.startUpdateFlowForResult(
+                    info,
+                    updateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
             }
         }
     }
